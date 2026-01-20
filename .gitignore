@@ -1,0 +1,46 @@
+##################################
+# ENV / SECRETS
+##################################
+.env
+.env.*
+!.env.example
+
+##################################
+# PYTHON / DJANGO
+##################################
+backend/venv/
+backend/__pycache__/
+*.py[cod]
+*.log
+
+backend/db.sqlite3
+backend/media/
+backend/staticfiles/
+
+##################################
+# NODE / NEXT.JS
+##################################
+frontend/frontend/node_modules/
+frontend/frontend/.next/
+frontend/frontend/out/
+
+##################################
+# DOCKER / RUNTIME
+##################################
+docker-data/
+docker-volumes/
+
+##################################
+# OS / EDITORS
+##################################
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
+##################################
+# TEST / CACHE
+##################################
+.pytest_cache/
+.coverage
+.cache/
