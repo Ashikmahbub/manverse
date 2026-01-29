@@ -18,44 +18,7 @@ Manverse is a modern full-stack e-commerce platform built with Django REST Frame
 - Tailwind CSS
 - Next/Image
 
- ## Project Structure
-
- manverse/
-├── backend/
-│   ├── config/
-│   │   ├── settings.py
-│   │   ├── urls.py
-│   │   └── wsgi.py
-│   ├── products/
-│   ├── orders/
-│   ├── payments/
-│   ├── users/
-│   ├── media/
-│   │   └── products/
-│   ├── manage.py
-│   ├── requirements.txt
-│   ├── db.sqlite3
-│   └── .env
-│
-├── frontend/
-│   └── frontend/
-│       ├── app/
-│       │   ├── shop/
-│       │   ├── product/
-│       │   │   └── [slug]/
-│       │   │       └── page.tsx
-│       │   ├── layout.tsx
-│       │   └── page.tsx
-│       ├── components/
-│       ├── public/
-│       ├── store/
-│       ├── package.json
-│       ├── tsconfig.json
-│       └── next.config.ts
-│
-├── .gitignore
-└── README.md
-
+ 
 ---
 
 ## Backend Setup (Django)
