@@ -25,7 +25,7 @@ SECRET_KEY = 'django-insecure-i*v0iqf+fxg1u_re1#2=(fiky^9#_g9_utrqflr8cqy_xm4%a3
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = True
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = ['*']
 
 
 # Application definition
@@ -92,8 +92,18 @@ WSGI_APPLICATION = 'config.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'manverse_db',
+        'USER': 'manverse_user',
+        'PASSWORD': 'Manverse@123',
+        'HOST': 'localhost',
+        'PORT': '5432',
+    }
+}
+CACHES = {
+    "default": {
+        "BACKEND": "django.core.cache.backends.redis.RedisCache",
+        "LOCATION": "redis://127.0.0.1:6379/1",
     }
 }
 

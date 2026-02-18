@@ -1,7 +1,7 @@
 import Link from "next/link";
 
 async function getProducts() {
-  const res = await fetch("http://127.0.0.1:8000/api/products/", {
+fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/products/`)
     cache: "no-store",
   });
 

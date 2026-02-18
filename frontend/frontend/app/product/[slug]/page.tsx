@@ -2,7 +2,7 @@ import Image from "next/image";
 
 async function getProduct(slug: string) {
   const res = await fetch(
-    `http://127.0.0.1:8000/api/products/${slug}/`,
+    `${process.env.NEXT_PUBLIC_API_BASE}/api/products/${slug}/`,
     { cache: "no-store" }
   );
 
@@ -26,12 +26,13 @@ export default async function ProductPage({ params }: PageProps) {
       <h1>{product.name}</h1>
 
       {product.image && (
-        <Image
-          src={`http://127.0.0.1:8000${product.image}`}
-          alt={product.name}
-          width={400}
-          height={400}
-        />
+<Image
+  src={`${process.env.NEXT_PUBLIC_API_BASE}${product.image}`}
+  alt={product.name}
+  width={400}
+
+  height={400}
+/>
       )}
 
       <p>{product.description}</p>
