@@ -1,9 +1,12 @@
 import Link from "next/link";
 
 async function getProducts() {
-fetch(`${process.env.NEXT_PUBLIC_API_BASE}/api/products/`)
-    cache: "no-store",
-  });
+  const res = await fetch(
+    `${process.env.NEXT_PUBLIC_API_BASE}/api/products/`,
+    {
+      cache: "no-store",
+    }
+  );
 
   if (!res.ok) {
     throw new Error("Failed to fetch products");
