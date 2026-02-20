@@ -1,7 +1,4 @@
-version: "3.9"
-
 services:
-
   db:
     image: postgres:16
     container_name: manverse_db
@@ -33,7 +30,9 @@ services:
       DB_USER: manverse_user
       DB_PASSWORD: Manverse@123
       REDIS_URL: redis://redis:6379/1
-
+    volumes:
+      - /home/manverse/static:/app/config/staticfiles
+      - /home/manverse/media:/app/config/media
   frontend:
     build: ./frontend/frontend
     container_name: manverse_frontend
@@ -45,3 +44,5 @@ services:
 
 volumes:
   postgres_data:
+  static_volume:
+  media_volume:
