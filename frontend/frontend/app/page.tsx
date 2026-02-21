@@ -6,7 +6,7 @@ interface Product {
   id: number
   name: string
   price: string
-  image: string | null
+  image_url: string | null
 }
 
 export default function Home() {
@@ -18,7 +18,7 @@ export default function Home() {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/products/`
         )
-        const data: Product[] = await res.json()
+        const data = await res.json()
         setProducts(data.slice(0, 8))
       } catch (error) {
         console.error("API Error:", error)
@@ -29,64 +29,79 @@ export default function Home() {
   }, [])
 
   return (
-    <div className="min-h-screen bg-black text-white font-sans">
+    <div className="min-h-screen bg-white text-black font-sans">
+
+      {/* TOP BAR */}
+      <div className="bg-black text-white text-center text-sm py-2">
+        Free Shipping on Orders Over $100
+      </div>
 
       {/* NAVBAR */}
-      <nav className="flex items-center justify-between px-10 py-6 border-b border-zinc-800 bg-[#0b1120]">
-        <span className="text-2xl font-bold tracking-tight">
-          MAN<span className="text-purple-500">VERSE</span>
-        </span>
+      <nav className="fixed top-0 left-0 w-full bg-white border-b border-gray-200 z-50">
+        <div className="flex items-center justify-between px-10 py-5">
 
-        <div className="flex gap-6 text-sm text-zinc-400">
-          <a href="#shop" className="hover:text-white transition">Shop</a>
-          <a href="#collections" className="hover:text-white transition">Collections</a>
-          <a href="/admin" className="hover:text-white transition">Admin</a>
-          <a href={`${process.env.NEXT_PUBLIC_API_URL}/api/products/`} className="hover:text-white transition">API</a>
+          {/* Logo */}
+          <div className="text-2xl font-bold tracking-wider">
+            MAN<span className="text-gray-500">VERSE</span>
+          </div>
+
+          {/* Menu */}
+          <div className="hidden md:flex gap-8 text-sm font-medium">
+            <a href="#" className="hover:text-gray-500">Home</a>
+            <a href="#shop" className="hover:text-gray-500">Shop</a>
+            <a href="#" className="hover:text-gray-500">Collections</a>
+            <a href="/admin" className="hover:text-gray-500">Admin</a>
+            <a
+              href={`${process.env.NEXT_PUBLIC_API_URL}/api/products/`}
+              className="hover:text-gray-500"
+            >
+              API
+            </a>
+          </div>
+
+          {/* Icons */}
+          <div className="flex gap-5 text-lg">
+            <span>🔍</span>
+            <span>👤</span>
+            <span>🛒</span>
+          </div>
         </div>
       </nav>
 
-      {/* HERO */}
-      <section className="flex flex-col items-center justify-center text-center px-6 py-36 bg-gradient-to-br from-[#0b1120] via-black to-black">
-        <h1 className="text-6xl font-extrabold max-w-3xl leading-tight">
-          Redefine Your <span className="text-purple-500">Performance</span>
-        </h1>
+      {/* HERO SECTION */}
+      <section className="pt-32 bg-[#f5f5f5]">
+        <div className="grid md:grid-cols-2 items-center px-10 py-20">
 
-        <p className="text-zinc-400 mt-6 max-w-xl text-lg">
-          Premium footwear and sportswear crafted for elite performance.
-        </p>
+          {/* LEFT */}
+          <div>
+            <h1 className="text-6xl font-light leading-tight">
+              Built For <span className="font-semibold">Performance</span>
+            </h1>
 
-        <a
-          href="#shop"
-          className="mt-8 bg-zinc-700 hover:bg-red-600 transition px-10 py-4 rounded-full font-semibold"
-        >
-          Shop Now
-        </a>
-      </section>
+            <p className="mt-6 text-gray-600 text-lg max-w-md">
+              Premium athletic fashion designed for modern confidence and power.
+            </p>
 
-      {/* CATEGORY */}
-      <section className="py-20 px-10 border-t border-zinc-800 bg-black">
-        <h2 className="text-3xl font-bold text-center mb-12">
-          Shop by Category
-        </h2>
+            <button className="mt-8 bg-black text-white px-8 py-3 rounded-full hover:bg-gray-800 transition">
+              Shop Now
+            </button>
+          </div>
 
-        <div className="grid md:grid-cols-3 gap-6">
-          {["Shoes", "Track Pants", "Outdoor Gear"].map((cat) => (
-            <div
-              key={cat}
-              className="bg-zinc-900 p-10 rounded-xl hover:bg-zinc-800 transition cursor-pointer"
-            >
-              <h3 className="text-xl font-semibold">{cat}</h3>
-              <p className="text-zinc-500 mt-2 text-sm">
-                Explore premium {cat}
-              </p>
-            </div>
-          ))}
+          {/* RIGHT IMAGE */}
+          <div className="flex justify-center">
+            <img
+              src="https://images.unsplash.com/photo-1520975916090-3105956dac38"
+              alt="Fashion"
+              className="w-[450px] object-cover rounded-lg"
+            />
+          </div>
+
         </div>
       </section>
 
       {/* FEATURED PRODUCTS */}
-      <section id="shop" className="py-20 px-10 border-t border-zinc-800 bg-black">
-        <h2 className="text-3xl font-bold text-center mb-12">
+      <section id="shop" className="py-20 px-10 bg-white">
+        <h2 className="text-3xl font-semibold mb-12 text-center">
           Featured Products
         </h2>
 
@@ -94,29 +109,29 @@ export default function Home() {
           {products.map((product) => (
             <div
               key={product.id}
-              className="bg-zinc-900 rounded-xl p-6 hover:bg-zinc-800 transition"
+              className="border rounded-xl p-5 hover:shadow-lg transition"
             >
-              <div className="h-40 bg-zinc-800 rounded-md mb-4 flex items-center justify-center text-zinc-500 text-sm">
-                {product.image ? (
+              <div className="h-48 bg-gray-100 flex items-center justify-center mb-4 overflow-hidden">
+                {product.image_url ? (
                   <img
-                    src={product.image}
+                    src={product.image_url}
                     alt={product.name}
-                    className="h-full object-cover"
+                    className="h-full object-contain"
                   />
                 ) : (
                   "No Image"
                 )}
               </div>
 
-              <h3 className="text-sm font-semibold">
+              <h3 className="text-sm font-medium">
                 {product.name}
               </h3>
 
-              <p className="text-purple-400 mt-2 font-bold">
+              <p className="mt-2 font-semibold">
                 ${product.price}
               </p>
 
-              <button className="mt-4 w-full bg-zinc-700 hover:bg-red-600 transition py-2 rounded-md text-sm">
+              <button className="mt-4 w-full bg-black text-white py-2 rounded-md hover:bg-gray-800 transition">
                 Add to Cart
               </button>
             </div>
@@ -124,57 +139,20 @@ export default function Home() {
         </div>
       </section>
 
-      {/* COLLECTION */}
-      <section id="collections" className="py-24 bg-[#0b1120] border-t border-zinc-800 text-center px-6">
-        <h2 className="text-4xl font-bold mb-6">
-          2026 <span className="text-purple-500">Elite Collection</span>
-        </h2>
-
-        <p className="text-zinc-400 max-w-xl mx-auto">
-          Engineered for athletes. Designed for modern style.
-        </p>
-
-        <a
-          href="#shop"
-          className="inline-block mt-8 border border-zinc-700 hover:border-white px-10 py-3 rounded-full transition"
-        >
-          Explore Collection
-        </a>
-      </section>
-
-      {/* ADMIN & API */}
-      <section className="py-20 bg-black border-t border-zinc-800 text-center">
-        <h2 className="text-3xl font-bold mb-6">Developer Access</h2>
-
-        <div className="flex justify-center gap-6">
-          <a
-            href="/admin"
-            className="bg-zinc-700 hover:bg-red-600 transition px-8 py-3 rounded-full"
-          >
-            Admin Panel
-          </a>
-
-          <a
-            href={`${process.env.NEXT_PUBLIC_API_URL}/api/products/`}
-            className="border border-zinc-700 hover:border-white transition px-8 py-3 rounded-full"
-          >
-            View API
-          </a>
-        </div>
-      </section>
-
       {/* FOOTER */}
-      <footer className="bg-[#0b1120] py-16 border-t border-zinc-800">
-        <div className="grid md:grid-cols-3 gap-8 px-10 text-sm text-zinc-400">
+      <footer className="bg-black text-white py-16 mt-20">
+        <div className="grid md:grid-cols-3 gap-8 px-10 text-sm">
 
           <div>
-            <h3 className="text-white font-semibold mb-4">MANVERSE</h3>
-            <p>Performance fashion for bold individuals.</p>
+            <h3 className="font-semibold mb-4">MANVERSE</h3>
+            <p className="text-gray-400">
+              Performance fashion for bold individuals.
+            </p>
           </div>
 
           <div>
-            <h4 className="text-white font-semibold mb-4">Quick Links</h4>
-            <ul className="space-y-2">
+            <h4 className="font-semibold mb-4">Quick Links</h4>
+            <ul className="space-y-2 text-gray-400">
               <li><a href="#shop" className="hover:text-white">Shop</a></li>
               <li><a href="/admin" className="hover:text-white">Admin</a></li>
               <li><a href={`${process.env.NEXT_PUBLIC_API_URL}/api/products/`} className="hover:text-white">API</a></li>
@@ -182,14 +160,16 @@ export default function Home() {
           </div>
 
           <div>
-            <h4 className="text-white font-semibold mb-4">Contact</h4>
-            <p>Email: support@manverse.com</p>
+            <h4 className="font-semibold mb-4">Contact</h4>
+            <p className="text-gray-400">
+              support@manverse.com
+            </p>
           </div>
 
         </div>
 
-        <div className="text-center text-zinc-600 mt-10 text-xs">
-          © 2026 Manverse. All rights reserved.
+        <div className="text-center text-gray-500 mt-10 text-xs">
+          © 2026 MANVERSE. All rights reserved.
         </div>
       </footer>
 
