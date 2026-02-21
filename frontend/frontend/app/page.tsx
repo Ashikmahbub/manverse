@@ -1,140 +1,64 @@
-"use client"
-import Link from "next/link"
-
 export default function Home() {
   return (
-    <div className="min-h-screen bg-[#0B1C2D] text-white font-sans">
-
+    <div className="min-h-screen bg-black text-white font-sans">
       {/* Navbar */}
-      <nav className="flex items-center justify-between px-12 py-6 border-b border-gray-800">
-        <span className="text-2xl font-bold tracking-wide">
-          MANVERSE
+      <nav className="flex items-center justify-between px-10 py-6 border-b border-zinc-800">
+        <span className="text-2xl font-bold tracking-tight text-white">
+          MAN<span className="text-purple-500">VERSE</span>
         </span>
-
-        <div className="flex gap-8 text-sm text-gray-300">
-          <Link href="/shop" className="hover:text-white transition">Shop</Link>
-          <Link href="#" className="hover:text-white transition">About</Link>
-          <Link href="#" className="hover:text-white transition">Contact</Link>
+        <div className="flex gap-6 text-sm text-zinc-400">
+          <a href="#" className="hover:text-white transition">Shop</a>
+          <a href="#" className="hover:text-white transition">About</a>
+          <a href="/admin" className="hover:text-white transition">Admin</a>
+          <a href="/api/products/" className="hover:text-white transition">API</a>
         </div>
       </nav>
 
-      {/* Hero Section */}
-      <section className="relative h-[80vh] flex items-center justify-center text-center px-6">
-
-        <div className="absolute inset-0 bg-gradient-to-br from-[#0B1C2D] via-[#0f2a45] to-black opacity-90"></div>
-
-        <div className="relative z-10 max-w-3xl">
-          <h1 className="text-6xl font-extrabold tracking-tight leading-tight">
-            Elevate Your <span className="text-gray-400">Presence</span>
+      {/* Hero */}
+      <section className="flex flex-col items-center justify-center text-center px-6 py-40 relative overflow-hidden">
+        <div className="absolute inset-0 bg-gradient-to-br from-purple-900/20 via-black to-black z-0" />
+        <div className="relative z-10 flex flex-col items-center gap-6">
+          <span className="text-xs uppercase tracking-widest text-purple-400 border border-purple-800 px-4 py-1 rounded-full">
+            New Collection 2026
+          </span>
+          <h1 className="text-6xl font-extrabold tracking-tight leading-tight max-w-2xl">
+            Redefine Your <span className="text-purple-500">Style</span>
           </h1>
-
-          <p className="mt-6 text-gray-300 text-lg">
-            Contemporary fashion for the bold modern man.
-            Minimal. Powerful. Refined.
+          <p className="text-zinc-400 text-lg max-w-md leading-relaxed">
+            Premium menswear crafted for the modern man. Bold. Minimal. Timeless.
           </p>
-
-          <div className="mt-10 flex justify-center gap-6">
-            <Link
-              href="/shop"
-              className="bg-gray-200 text-black px-8 py-3 rounded-full font-semibold hover:bg-red-600 hover:text-white transition"
-            >
-              Shop Collection
-            </Link>
-
-            <Link
-              href="#featured"
-              className="border border-gray-500 px-8 py-3 rounded-full font-semibold text-gray-300 hover:border-red-600 hover:text-red-500 transition"
-            >
-              Explore
-            </Link>
+          <div className="flex gap-4 mt-4">
+            <a href="#" className="bg-purple-600 hover:bg-purple-700 transition px-8 py-3 rounded-full text-sm font-semibold">Shop Now</a>
+            <a href="#" className="border border-zinc-700 hover:border-zinc-400 transition px-8 py-3 rounded-full text-sm font-semibold text-zinc-300">Explore</a>
           </div>
         </div>
       </section>
 
-      {/* Featured Section */}
-      <section id="featured" className="px-12 py-24 bg-[#0E2238]">
-        <h2 className="text-3xl font-bold mb-14 text-center">
-          Featured Collection
-        </h2>
-
-        <div className="grid grid-cols-1 sm:grid-cols-3 gap-10">
-          {[1,2,3].map((item) => (
-            <div
-              key={item}
-              className="bg-[#142E4A] rounded-xl overflow-hidden hover:scale-[1.02] transition"
-            >
-              <div className="h-72 bg-gray-700"></div>
-
-              <div className="p-6">
-                <h3 className="font-semibold text-lg">
-                  Premium Jacket
-                </h3>
-                <p className="text-gray-400 mt-2">$149</p>
-
-                <button className="mt-4 bg-gray-200 text-black px-6 py-2 rounded-full text-sm font-medium hover:bg-red-600 hover:text-white transition">
-                  View Product
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
+      {/* Features */}
+      <section className="grid grid-cols-1 sm:grid-cols-3 gap-px border-t border-zinc-800 bg-zinc-800">
+        {[
+          { title: "Premium Quality", desc: "Handpicked fabrics from top suppliers worldwide." },
+          { title: "Fast Delivery", desc: "Free shipping on all orders above $100." },
+          { title: "Easy Returns", desc: "30-day hassle-free return policy." },
+        ].map((f) => (
+          <div key={f.title} className="bg-black px-10 py-12 flex flex-col gap-3">
+            <h3 className="text-white font-semibold text-lg">{f.title}</h3>
+            <p className="text-zinc-500 text-sm leading-relaxed">{f.desc}</p>
+          </div>
+        ))}
       </section>
 
-      {/* Brand Message */}
-      <section className="px-12 py-24 bg-[#0B1C2D] text-center border-t border-gray-800">
-        <h2 className="text-4xl font-bold max-w-2xl mx-auto">
-          Designed for Confidence.
-        </h2>
-
-        <p className="mt-6 text-gray-400 max-w-xl mx-auto">
-          Each piece is crafted with precision,
-          blending comfort and sophistication.
-          Made to stand out — effortlessly.
+      {/* CI/CD Test Banner */}
+      <section className="flex items-center justify-center py-8 bg-purple-900/20 border-t border-purple-800/30">
+        <p className="text-purple-400 text-sm tracking-wide">
+          🚀 Deployed via CI/CD — GitHub Actions → Docker → Live
         </p>
       </section>
 
       {/* Footer */}
-      <footer className="bg-black px-12 py-16 border-t border-gray-800 text-gray-400">
-
-        <div className="grid grid-cols-1 sm:grid-cols-4 gap-10">
-
-          <div>
-            <h4 className="text-white font-semibold mb-4">MANVERSE</h4>
-            <p className="text-sm">
-              Modern fashion. Elevated identity.
-            </p>
-          </div>
-
-          <div>
-            <h4 className="text-white font-semibold mb-4">Shop</h4>
-            <ul className="space-y-2 text-sm">
-              <li>Sneakers</li>
-              <li>Outerwear</li>
-              <li>Accessories</li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-white font-semibold mb-4">Support</h4>
-            <ul className="space-y-2 text-sm">
-              <li>Shipping</li>
-              <li>Returns</li>
-              <li>Privacy Policy</li>
-            </ul>
-          </div>
-
-          <div>
-            <h4 className="text-white font-semibold mb-4">Follow</h4>
-            <p className="text-sm">Instagram • Facebook • TikTok</p>
-          </div>
-
-        </div>
-
-        <div className="mt-12 text-center text-xs text-gray-600">
-          © 2026 Manverse. All rights reserved.
-        </div>
+      <footer className="text-center py-8 text-zinc-600 text-sm border-t border-zinc-800">
+        © 2026 Manverse. All rights reserved.
       </footer>
-
     </div>
-  )
+  );
 }
