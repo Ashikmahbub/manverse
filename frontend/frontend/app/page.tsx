@@ -28,18 +28,8 @@ export default function Home() {
             Premium menswear crafted for the modern man. Bold. Minimal. Timeless.
           </p>
           <div className="flex gap-4 mt-4">
-            
-              href="#"
-              className="bg-purple-600 hover:bg-purple-700 transition px-8 py-3 rounded-full text-sm font-semibold"
-            >
-              Shop Now
-            </a>
-            
-              href="#"
-              className="border border-zinc-700 hover:border-zinc-400 transition px-8 py-3 rounded-full text-sm font-semibold text-zinc-300"
-            >
-              Explore
-            </a>
+            <a href="#" className="bg-purple-600 hover:bg-purple-700 transition px-8 py-3 rounded-full text-sm font-semibold">Shop Now</a>
+            <a href="#" className="border border-zinc-700 hover:border-zinc-400 transition px-8 py-3 rounded-full text-sm font-semibold text-zinc-300">Explore</a>
           </div>
         </div>
       </section>
@@ -62,12 +52,13 @@ export default function Home() {
       <section className="flex items-center justify-center py-8 bg-purple-900/20 border-t border-purple-800/30">
         <p className="text-purple-400 text-sm tracking-wide">
           🚀 Deployed via CI/CD — GitHub Actions → Docker → Live
-
-          self hosted runner
         </p>
       </section>
 
       {/* Footer */}
       <footer className="text-center py-8 text-zinc-600 text-sm border-t border-zinc-800">
         © 2026 Manverse. All rights reserved.
-      </
+      </footer>
+    </div>
+  );
+}
