@@ -2,7 +2,7 @@ import Image from "next/image";
 
 async function getProduct(slug: string) {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_BASE}/api/products/${slug}/`,
+    `${process.env.NEXT_PUBLIC_API_URL}/api/products/${slug}/`,
     { cache: "no-store" }
   );
 
@@ -14,25 +14,24 @@ async function getProduct(slug: string) {
 }
 
 interface PageProps {
-  params: Promise<{ slug: string }>;
+  params: { slug: string };
 }
 
 export default async function ProductPage({ params }: PageProps) {
-  const { slug } = await params;
+  const { slug } = params;
   const product = await getProduct(slug);
 
   return (
-    <div style={{ padding: 20 }}>
+    <div style={{ padding: 40 }}>
       <h1>{product.name}</h1>
 
-      {product.image && (
-<Image
-  src={`${process.env.NEXT_PUBLIC_API_BASE}${product.image}`}
-  alt={product.name}
-  width={400}
-
-  height={400}
-/>
+      {product.image_url && (
+        <Image
+          src={product.image_url}
+          alt={product.name}
+          width={400}
+          height={400}
+        />
       )}
 
       <p>{product.description}</p>
