@@ -9,7 +9,7 @@ class ProductVariantSerializer(serializers.ModelSerializer):
 
 class ProductSerializer(serializers.ModelSerializer):
     variants = ProductVariantSerializer(
-        source='productvariant_set', many=True, read_only=True
+        source="productvariant_set", many=True, read_only=True
     )
 
     class Meta:
