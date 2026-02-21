@@ -1,4 +1,4 @@
- "use client"
+"use client"
 
 import { useEffect, useState } from "react"
 import Link from "next/link"
@@ -14,126 +14,85 @@ interface Product {
 
 export default function Home() {
   const [products, setProducts] = useState<Product[]>([])
-  const [featured, setFeatured] = useState<Product[]>([])
-  const [current, setCurrent] = useState(0)
-  const [chatOpen, setChatOpen] = useState(false)
 
   useEffect(() => {
     const fetchProducts = async () => {
-      try {
-        const res = await fetch(
-          `${process.env.NEXT_PUBLIC_API_URL}/api/products/`
-        )
-        const data: Product[] = await res.json()
-        setProducts(data)
-
-        // Pick 1 product per category
-        const categoryMap = new Map<number, Product>()
-        data.forEach((item) => {
-          if (!categoryMap.has(item.category)) {
-            categoryMap.set(item.category, item)
-          }
-        })
-
-        const uniqueProducts = Array.from(categoryMap.values())
-
-        // fallback if empty
-        setFeatured(uniqueProducts.length ? uniqueProducts : data.slice(0, 1))
-
-      } catch (error) {
-        console.error("API Error:", error)
-      }
+      const res = await fetch(
+        `${process.env.NEXT_PUBLIC_API_URL}/api/products/`
+      )
+      const data = await res.json()
+      setProducts(data)
     }
-
     fetchProducts()
   }, [])
 
-  // Auto slide
-  useEffect(() => {
-    if (featured.length === 0) return
-    const interval = setInterval(() => {
-      setCurrent((prev) => (prev + 1) % featured.length)
-    }, 4000)
-
-    return () => clearInterval(interval)
-  }, [featured])
+  const featured = products.slice(0, 4)
+  const trending = products.slice(4, 8)
 
   return (
-    <div className="min-h-screen bg-[#fafafa] text-black font-sans">
-
-      {/* TOP BAR */}
-      <div className="bg-black text-white text-center text-sm py-2 tracking-wide">
-        Free Shipping on Orders Over $100
-      </div>
+    <div className="min-h-screen bg-[#f6efe6] text-black font-sans">
 
       {/* NAVBAR */}
-      <nav className="fixed top-0 left-0 w-full bg-white border-b border-gray-200 z-50">
-        <div className="flex items-center justify-between px-6 md:px-10 py-5">
+      <nav className="fixed top-0 left-0 w-full bg-white shadow-sm z-50">
+        <div className="flex justify-between items-center px-10 py-5">
           <div className="text-2xl font-bold tracking-wider">
-            MAN<span className="text-gray-500">VERSE</span>
+            MAN<span className="text-gray-600">VERSE</span>
           </div>
         </div>
       </nav>
 
-      {/* HERO CAROUSEL */}
-      <section className="pt-32 bg-gradient-to-r from-gray-50 to-white">
-        {featured.length > 0 && (
-          <div className="grid md:grid-cols-2 items-center px-6 md:px-10 py-16 gap-10">
+      {/* HERO FULL WIDTH CAROUSEL */}
+      <section className="pt-24">
+        <div className="w-full h-[85vh] relative overflow-hidden">
 
-            <div>
-              <h1 className="text-4xl md:text-6xl font-light leading-tight">
-                Featured <span className="font-semibold">Collection</span>
+          <img
+            src="https://images.unsplash.com/photo-1600185365483-26d7a4cc7519"
+            className="w-full h-full object-cover"
+            alt="Hero"
+          />
+
+          <div className="absolute inset-0 bg-black/30 flex items-center">
+            <div className="px-16 text-white">
+              <h1 className="text-5xl md:text-7xl font-light">
+                Wear <span className="font-semibold">Confidence</span>
               </h1>
 
-              <p className="mt-6 text-gray-600 text-base md:text-lg max-w-md">
-                {featured[current].name}
+              <p className="mt-6 text-lg max-w-md">
+                Crafted for timeless elegance and bold presence.
               </p>
 
               <Link
-                href={`/products/${featured[current].slug}`}
-                className="inline-block mt-8 bg-black text-white px-8 py-3 rounded-full hover:bg-gray-800 transition"
+                href="#featured"
+                className="inline-block mt-8 bg-white text-black px-8 py-3 rounded-full hover:bg-gray-200 transition"
               >
-                View Product
+                Shop Collection
               </Link>
             </div>
-
-            <div className="flex justify-center">
-              {featured[current].image_url && (
-                <img
-                  src={featured[current].image_url}
-                  alt={featured[current].name}
-                  className="w-[280px] md:w-[450px] object-contain rounded-lg shadow-lg"
-                />
-              )}
-            </div>
-
           </div>
-        )}
+
+        </div>
       </section>
 
-      {/* PRODUCTS GRID */}
-      <section className="py-16 md:py-20 px-6 md:px-10 bg-white">
-        <h2 className="text-2xl md:text-3xl font-semibold mb-12 text-center">
-          All Products
+      {/* FEATURED PRODUCTS */}
+      <section id="featured" className="py-20 px-10">
+        <h2 className="text-3xl font-semibold mb-12 text-center">
+          Featured Products
         </h2>
 
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
-
-          {products.map((product) => (
+        <div className="grid grid-cols-2 md:grid-cols-4 gap-8">
+          {featured.map((product) => (
             <Link
               key={product.id}
               href={`/products/${product.slug}`}
-              className="border rounded-xl p-4 hover:shadow-xl hover:-translate-y-1 transition block bg-white"
+              className="bg-white rounded-xl p-5 shadow-sm hover:shadow-xl transition block"
             >
-              <div className="h-40 bg-gray-100 flex items-center justify-center mb-4 overflow-hidden rounded-md">
-                {product.image_url ? (
+              <div className="h-56 bg-[#f3ece2] flex items-center justify-center mb-4 rounded-md">
+                {product.image_url && (
                   <img
                     src={product.image_url}
                     alt={product.name}
                     className="h-full object-contain"
                   />
-                ) : (
-                  <span className="text-gray-400 text-sm">No Image</span>
                 )}
               </div>
 
@@ -141,40 +100,55 @@ export default function Home() {
                 {product.name}
               </h3>
 
-              <p className="mt-2 font-semibold text-gray-800">
-                ${product.price}
+              <p className="mt-2 font-semibold">
+                ৳ {product.price}
               </p>
+            </Link>
+          ))}
+        </div>
+      </section>
+
+      {/* TRENDING NOW */}
+      <section className="py-20 px-10 bg-white">
+        <h2 className="text-3xl font-semibold mb-12 text-center">
+          Trending Now
+        </h2>
+
+        <div className="grid md:grid-cols-3 gap-8">
+
+          {trending.map((product) => (
+            <Link
+              key={product.id}
+              href={`/products/${product.slug}`}
+              className="group block"
+            >
+              <div className="relative overflow-hidden rounded-xl">
+                {product.image_url && (
+                  <img
+                    src={product.image_url}
+                    alt={product.name}
+                    className="w-full h-80 object-cover group-hover:scale-105 transition duration-500"
+                  />
+                )}
+              </div>
+
+              <div className="mt-4">
+                <h3 className="text-lg font-medium">
+                  {product.name}
+                </h3>
+                <p className="text-gray-600 mt-1">
+                  ৳ {product.price}
+                </p>
+              </div>
+
             </Link>
           ))}
 
         </div>
       </section>
 
-      {/* AI CHAT DROPDOWN */}
-      <div className="fixed bottom-6 right-6 z-50">
-        <button
-          onClick={() => setChatOpen(!chatOpen)}
-          className="bg-black text-white px-5 py-3 rounded-full shadow-lg hover:bg-gray-800 transition"
-        >
-          💬 Chat AI
-        </button>
-
-        {chatOpen && (
-          <div className="mt-3 w-72 bg-white border rounded-xl shadow-xl p-4">
-            <p className="text-sm text-gray-600 mb-2">
-              Ask about products, sizes, availability...
-            </p>
-            <input
-              type="text"
-              placeholder="Type your message..."
-              className="w-full border px-3 py-2 rounded-md text-sm"
-            />
-          </div>
-        )}
-      </div>
-
       {/* FOOTER */}
-      <footer className="bg-black text-white py-14 mt-20 text-center text-sm">
+      <footer className="bg-black text-white py-16 text-center">
         © 2026 MANVERSE. All rights reserved.
       </footer>
 
