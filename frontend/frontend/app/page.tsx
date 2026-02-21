@@ -62,6 +62,8 @@ export default function Home() {
       <section className="flex items-center justify-center py-8 bg-purple-900/20 border-t border-purple-800/30">
         <p className="text-purple-400 text-sm tracking-wide">
           🚀 Deployed via CI/CD — GitHub Actions → Docker → Live
+
+          self hosted runner
         </p>
       </section>
 
