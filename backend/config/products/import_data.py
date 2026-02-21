@@ -1,4 +1,4 @@
- import json
+import json
 from django.utils.text import slugify
 from products.models import Category, Product, ProductVariant
 from pathlib import Path
