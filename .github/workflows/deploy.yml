@@ -6,21 +6,23 @@ on:
 
 jobs:
   deploy-manverse:
-    runs-on: ubuntu-latest
+    runs-on: self-hosted
     steps:
-      - name: Deploy to sin-web01 (103.6.168.232)
-        uses: appleboy/ssh-action@v1.0.0
-        with:
-          host: ${{ secrets.SERVER_HOST }}
-          username: ${{ secrets.SERVER_USER }}
-          key: ${{ secrets.SERVER_SSH_KEY }}
-          script: |
-            cd /var/www/manverse
-            git pull origin main
-            docker compose build backend
-            docker compose build frontend
-            docker compose up -d
-            docker exec manverse_backend python manage.py migrate --no-input
-            docker exec manverse_backend python manage.py collectstatic --no-input
-            chown -R www-data:www-data /home/manverse/static/
-            docker image prune -f
+      - name: Pull latest code
+        run: |
+          cd /var/www/manverse
+          git pull origin main
+
+      - name: Rebuild and restart containers
+        run: |
+          cd /var/www/manverse
+          docker compose build backend
+          docker compose build frontend
+          docker compose up -d
+
+      - name: Run migrations and collectstatic
+        run: |
+          docker exec manverse_backend python manage.py migrate --no-input
+          docker exec manverse_backend python manage.py collectstatic --no-input
+          chown -R www-data:www-data /home/manverse/static/
+          docker image prune -f
