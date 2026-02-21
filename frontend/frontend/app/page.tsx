@@ -2,8 +2,15 @@
 
 import { useEffect, useState } from "react"
 
+interface Product {
+  id: number
+  name: string
+  price: string
+  image: string | null
+}
+
 export default function Home() {
-  const [products, setProducts] = useState([])
+  const [products, setProducts] = useState<Product[]>([])
 
   useEffect(() => {
     const fetchProducts = async () => {
@@ -11,7 +18,7 @@ export default function Home() {
         const res = await fetch(
           `${process.env.NEXT_PUBLIC_API_URL}/api/products/`
         )
-        const data = await res.json()
+        const data: Product[] = await res.json()
         setProducts(data.slice(0, 8))
       } catch (error) {
         console.error("API Error:", error)
@@ -24,7 +31,7 @@ export default function Home() {
   return (
     <div className="min-h-screen bg-black text-white font-sans">
 
-      {/* ================= NAVBAR ================= */}
+      {/* NAVBAR */}
       <nav className="flex items-center justify-between px-10 py-6 border-b border-zinc-800 bg-[#0b1120]">
         <span className="text-2xl font-bold tracking-tight">
           MAN<span className="text-purple-500">VERSE</span>
@@ -34,11 +41,11 @@ export default function Home() {
           <a href="#shop" className="hover:text-white transition">Shop</a>
           <a href="#collections" className="hover:text-white transition">Collections</a>
           <a href="/admin" className="hover:text-white transition">Admin</a>
-          <a href="/api/products/" className="hover:text-white transition">API</a>
+          <a href={`${process.env.NEXT_PUBLIC_API_URL}/api/products/`} className="hover:text-white transition">API</a>
         </div>
       </nav>
 
-      {/* ================= HERO ================= */}
+      {/* HERO */}
       <section className="flex flex-col items-center justify-center text-center px-6 py-36 bg-gradient-to-br from-[#0b1120] via-black to-black">
         <h1 className="text-6xl font-extrabold max-w-3xl leading-tight">
           Redefine Your <span className="text-purple-500">Performance</span>
@@ -56,7 +63,7 @@ export default function Home() {
         </a>
       </section>
 
-      {/* ================= CATEGORY ================= */}
+      {/* CATEGORY */}
       <section className="py-20 px-10 border-t border-zinc-800 bg-black">
         <h2 className="text-3xl font-bold text-center mb-12">
           Shop by Category
@@ -77,11 +84,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ================= FEATURED PRODUCTS ================= */}
-      <section
-        id="shop"
-        className="py-20 px-10 border-t border-zinc-800 bg-black"
-      >
+      {/* FEATURED PRODUCTS */}
+      <section id="shop" className="py-20 px-10 border-t border-zinc-800 bg-black">
         <h2 className="text-3xl font-bold text-center mb-12">
           Featured Products
         </h2>
@@ -120,11 +124,8 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ================= COLLECTION ================= */}
-      <section
-        id="collections"
-        className="py-24 bg-[#0b1120] border-t border-zinc-800 text-center px-6"
-      >
+      {/* COLLECTION */}
+      <section id="collections" className="py-24 bg-[#0b1120] border-t border-zinc-800 text-center px-6">
         <h2 className="text-4xl font-bold mb-6">
           2026 <span className="text-purple-500">Elite Collection</span>
         </h2>
@@ -141,7 +142,7 @@ export default function Home() {
         </a>
       </section>
 
-      {/* ================= ADMIN & API ================= */}
+      {/* ADMIN & API */}
       <section className="py-20 bg-black border-t border-zinc-800 text-center">
         <h2 className="text-3xl font-bold mb-6">Developer Access</h2>
 
@@ -162,15 +163,13 @@ export default function Home() {
         </div>
       </section>
 
-      {/* ================= FOOTER ================= */}
+      {/* FOOTER */}
       <footer className="bg-[#0b1120] py-16 border-t border-zinc-800">
         <div className="grid md:grid-cols-3 gap-8 px-10 text-sm text-zinc-400">
 
           <div>
             <h3 className="text-white font-semibold mb-4">MANVERSE</h3>
-            <p>
-              Performance fashion for bold individuals.
-            </p>
+            <p>Performance fashion for bold individuals.</p>
           </div>
 
           <div>
