@@ -24,5 +24,3 @@ jobs:
         run: |
           docker exec manverse_backend python manage.py migrate --no-input
           docker exec manverse_backend python manage.py collectstatic --no-input
-          chown -R www-data:www-data /home/manverse/static/
-          docker image prune -f
