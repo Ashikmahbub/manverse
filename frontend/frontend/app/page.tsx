@@ -3,12 +3,28 @@
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
 
+// interface Product {
+//   id: number;
+//   name: string;
+//   price: string;
+//   image_url: string | null;
+//   slug: string;
+// }
 interface Product {
   id: number;
   name: string;
   price: string;
   image_url: string | null;
   slug: string;
+  description: string;
+  is_active: boolean;
+  category: number;
+  variants: {
+    id: number;
+    size: string;
+    color: string;
+    stock: number;
+  }[];
 }
 
 interface Message {
