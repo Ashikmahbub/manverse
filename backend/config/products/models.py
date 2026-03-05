@@ -15,7 +15,7 @@ class Product(models.Model):
     description = models.TextField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
 
-    # change this 👇
+    
     image_url = models.URLField(max_length=500, blank=True, null=True)
 
     is_active = models.BooleanField(default=True)
