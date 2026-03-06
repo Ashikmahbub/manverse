@@ -34,9 +34,11 @@ Help customers with products, sizing, orders and style advice. Be friendly and c
 
   const data = await response.json();
 
-  if (data.error) {
-    return NextResponse.json({ reply: "Sorry, I'm unavailable right now." }, { status: 500 });
-  }
+   
 
+  if (data.error) {
+    console.error("OpenAI error:", JSON.stringify(data.error));
+    return NextResponse.json({ reply: `Error: ${data.error.message}` });
+  }
   return NextResponse.json({ reply: data.choices[0].message.content });
 }
