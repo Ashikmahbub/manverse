@@ -20,15 +20,26 @@ interface Product {
   variants: Variant[];
 }
 
+// async function getProduct(slug: string): Promise<Product> {
+//   const res = await fetch(
+//     `${process.env.NEXT_PUBLIC_API_URL}/api/products/${slug}/`,
+//     { cache: "no-store" }
+//   );
+//   if (!res.ok) throw new Error("Product not found");
+//   return res.json();
+// }
 async function getProduct(slug: string): Promise<Product> {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/products/${slug}/`,
     { cache: "no-store" }
   );
-  if (!res.ok) throw new Error("Product not found");
+
+  if (!res.ok) {
+    notFound();
+  }
+
   return res.json();
 }
-
 async function getRelated(): Promise<Product[]> {
   const res = await fetch(
     `${process.env.NEXT_PUBLIC_API_URL}/api/products/`,
