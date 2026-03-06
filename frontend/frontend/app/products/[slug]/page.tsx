@@ -31,7 +31,7 @@ interface Product {
 // }
 async function getProduct(slug: string): Promise<Product> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/products/${slug}/`,
+    `${process.env.BACKEND_URL}/api/products/${slug}/`,
     { cache: "no-store" }
   );
 
@@ -43,7 +43,7 @@ async function getProduct(slug: string): Promise<Product> {
 }
 async function getRelated(): Promise<Product[]> {
   const res = await fetch(
-    `${process.env.NEXT_PUBLIC_API_URL}/api/products/`,
+    `${process.env.BACKEND_URL}/api/products/`,
     { cache: "no-store" }
   );
   return res.json();
