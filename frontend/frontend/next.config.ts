@@ -1,26 +1,19 @@
-/** @type {import('next').NextConfig} */
 const nextConfig = {
   images: {
     remotePatterns: [
       {
+        protocol: 'https',
+        hostname: '**',
+      },
+      {
         protocol: 'http',
-        hostname: '127.0.0.1',
-        port: '8000',
-        pathname: '/media/**',
+        hostname: '**',
       },
     ],
-    // This allows localhost in development
-    loaderFile: undefined,
-    unoptimized: false,
+    unoptimized: true,
   },
-  // Allow private IPs in development
   skipTrailingSlashRedirect: false,
   skipMiddlewareUrlNormalize: false,
 };
 
-// For development, you can use unoptimized images
-if (process.env.NODE_ENV === 'development') {
-  nextConfig.images.unoptimized = true;
-}
-
-module.exports = nextConfig;
+export default nextConfig;

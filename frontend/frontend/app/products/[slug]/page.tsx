@@ -1,4 +1,3 @@
-import Image from "next/image";
 import Link from "next/link";
 import { notFound } from "next/navigation";
 
@@ -21,26 +20,17 @@ interface Product {
   variants: Variant[];
 }
 
-// async function getProduct(slug: string): Promise<Product> {
-//   const res = await fetch(
-//     `${process.env.NEXT_PUBLIC_API_URL}/api/products/${slug}/`,
-//     { cache: "no-store" }
-//   );
-//   if (!res.ok) throw new Error("Product not found");
-//   return res.json();
-// }
 async function getProduct(slug: string): Promise<Product> {
   const res = await fetch(
     `${process.env.BACKEND_URL}/api/products/${slug}/`,
     { cache: "no-store" }
   );
-
   if (!res.ok) {
     notFound();
   }
-
   return res.json();
 }
+
 async function getRelated(): Promise<Product[]> {
   const res = await fetch(
     `${process.env.BACKEND_URL}/api/products/`,
@@ -49,13 +39,15 @@ async function getRelated(): Promise<Product[]> {
   return res.json();
 }
 
-export default async function ProductPage({ params }: { params: { slug: string } }) {
+export default async function ProductPage({ params }: { params: Promise<{ slug: string }> }) {
+  const { slug } = await params;
+
   const [product, allProducts] = await Promise.all([
-    getProduct(params.slug),
+    getProduct(slug),
     getRelated(),
   ]);
 
-  const related = allProducts.filter(p => p.slug !== params.slug).slice(0, 4);
+  const related = allProducts.filter(p => p.slug !== slug).slice(0, 4);
   const totalStock = product.variants.reduce((sum, v) => sum + v.stock, 0);
   const sizes = product.variants.map(v => v.size).filter(s => s !== "Default");
   const colors = product.variants.map(v => v.color).filter(c => c !== "Default");
