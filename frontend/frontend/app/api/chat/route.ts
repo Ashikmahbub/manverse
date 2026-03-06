@@ -3,7 +3,6 @@ import { NextRequest, NextResponse } from "next/server";
 export async function POST(req: NextRequest) {
   const { messages } = await req.json();
 
-  // Fetch real products from Django
   const productsRes = await fetch(`${process.env.BACKEND_URL}/api/products/`);
   const products = await productsRes.json();
 
@@ -11,14 +10,14 @@ export async function POST(req: NextRequest) {
     `- ${p.name}: ৳${p.price}`
   ).join("\n");
 
-  const response = await fetch("https://api.openai.com/v1/chat/completions", {
+  const response = await fetch("https://api.groq.com/openai/v1/chat/completions", {
     method: "POST",
     headers: {
       "Content-Type": "application/json",
-      "Authorization": `Bearer ${process.env.OPENAI_API_KEY}`,
+      "Authorization": `Bearer ${process.env.GROQ_API_KEY}`,
     },
     body: JSON.stringify({
-      model: "gpt-4o-mini",  // cheapest and fastest
+      model: "llama-3.1-8b-instant",
       messages: [
         {
           role: "system",
@@ -34,11 +33,10 @@ Help customers with products, sizing, orders and style advice. Be friendly and c
 
   const data = await response.json();
 
-   
-
   if (data.error) {
-    console.error("OpenAI error:", JSON.stringify(data.error));
+    console.error("Groq error:", JSON.stringify(data.error));
     return NextResponse.json({ reply: `Error: ${data.error.message}` });
   }
+
   return NextResponse.json({ reply: data.choices[0].message.content });
 }
