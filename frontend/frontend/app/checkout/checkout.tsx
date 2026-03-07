@@ -4,7 +4,7 @@ import { useCart } from "@/app/store/cartStore";
 // ci cd test test again
 
 export default function Checkout() {
-  const { items, clear } = useCart();
+  const { cart: items, clearCart: clear } = useCart();
 
   const placeOrder = async () => {
     await fetch("http://localhost:8000/api/orders/create/", {
