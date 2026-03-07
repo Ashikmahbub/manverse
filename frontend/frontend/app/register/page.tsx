@@ -44,7 +44,7 @@ export default function RegisterPage() {
 
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="text-3xl font-bold tracking-widest">
+          <Link href="/" className="text-3xl font-bold tracking-widest text-gray-900">
             MAN<span className="text-amber-600">VERSE</span>
           </Link>
           <p className="text-gray-500 mt-2 text-sm">Create your account</p>
@@ -66,7 +66,7 @@ export default function RegisterPage() {
               <input
                 type="text"
                 placeholder="Choose a username"
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-400 transition"
+                className="w-full border text-gray-900 border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-400 transition"
                 value={form.username}
                 onChange={(e) => setForm({ ...form, username: e.target.value })}
               />
@@ -76,7 +76,7 @@ export default function RegisterPage() {
               <input
                 type="email"
                 placeholder="Enter your email"
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-400 transition"
+                className="w-full border text-gray-900 border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-400 transition"
                 value={form.email}
                 onChange={(e) => setForm({ ...form, email: e.target.value })}
               />
@@ -86,7 +86,7 @@ export default function RegisterPage() {
               <input
                 type="password"
                 placeholder="Create a password"
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-400 transition"
+                className="w-full border text-gray-900 border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-400 transition"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
               />
@@ -96,7 +96,7 @@ export default function RegisterPage() {
               <input
                 type="password"
                 placeholder="Confirm your password"
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-400 transition"
+                className="w-full border text-gray-900 border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-400 transition"
                 value={form.password2}
                 onChange={(e) => setForm({ ...form, password2: e.target.value })}
               />

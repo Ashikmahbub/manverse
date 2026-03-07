@@ -40,7 +40,7 @@ export default function LoginPage() {
 
         {/* Logo */}
         <div className="text-center mb-8">
-          <Link href="/" className="text-3xl font-bold tracking-widest">
+          <Link href="/" className="text-3xl font-bold tracking-widest text-gray-900">
             MAN<span className="text-amber-600">VERSE</span>
           </Link>
           <p className="text-gray-500 mt-2 text-sm">Sign in to your account</p>
@@ -62,7 +62,7 @@ export default function LoginPage() {
               <input
                 type="text"
                 placeholder="Enter your username"
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-400 transition"
+                className="w-full border text-gray-900 border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-400 transition"
                 value={form.username}
                 onChange={(e) => setForm({ ...form, username: e.target.value })}
                 onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
@@ -73,7 +73,7 @@ export default function LoginPage() {
               <input
                 type="password"
                 placeholder="Enter your password"
-                className="w-full border border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-400 transition"
+                className="w-full border text-gray-900 border-gray-200 rounded-xl px-4 py-3 text-sm outline-none focus:border-amber-400 transition"
                 value={form.password}
                 onChange={(e) => setForm({ ...form, password: e.target.value })}
                 onKeyDown={(e) => e.key === "Enter" && handleSubmit()}
