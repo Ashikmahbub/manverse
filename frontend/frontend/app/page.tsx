@@ -2,7 +2,33 @@
 
 import { useEffect, useState, useRef } from "react";
 import Link from "next/link";
+// Add this hook at top of Home component
+const [user, setUser] = useState<string | null>(null);
 
+useEffect(() => {
+  const token = localStorage.getItem("access_token");
+  if (token) setUser(token);
+}, []);
+
+const logout = () => {
+  localStorage.removeItem("access_token");
+  localStorage.removeItem("refresh_token");
+  setUser(null);
+};
+
+// Replace Account link in navbar:
+{user ? (
+  <div className="flex gap-3 items-center">
+    <Link href="/profile" className="text-sm text-gray-600 hover:text-amber-600 transition">Profile</Link>
+    <button onClick={logout} className="bg-amber-600 text-white text-sm px-5 py-2 rounded-full hover:bg-amber-700 transition">
+      Logout
+    </button>
+  </div>
+) : (
+  <Link href="/login" className="bg-amber-600 text-white text-sm px-5 py-2 rounded-full hover:bg-amber-700 transition">
+    Login
+  </Link>
+)}
 // interface Product {
 //   id: number;
 //   name: string;
