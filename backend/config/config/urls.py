@@ -7,7 +7,7 @@ urlpatterns = [
     path("api/orders/", include("orders.urls")),
     path("api/users/", include("users.urls")),
 ]
-```
+
 
 # Now your URLs will be:
 # ```
