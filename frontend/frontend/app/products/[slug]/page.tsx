@@ -1,5 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
+import AddToCart from "./AddToCart";
 
 interface Variant {
   id: number;
@@ -49,8 +50,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
   const related = allProducts.filter(p => p.slug !== slug).slice(0, 4);
   const totalStock = product.variants.reduce((sum, v) => sum + v.stock, 0);
-  const sizes = product.variants.map(v => v.size).filter(s => s !== "Default");
-  const colors = product.variants.map(v => v.color).filter(c => c !== "Default");
+  
 
   return (
     <div className="min-h-screen bg-[#faf7f2]">
@@ -125,57 +125,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
 
             <p className="text-gray-600 leading-relaxed">{product.description}</p>
 
-            {/* Sizes */}
-            {sizes.length > 0 && (
-              <div>
-                <p className="font-medium text-gray-800 mb-3">Select Size</p>
-                <div className="flex gap-3 flex-wrap">
-                  {sizes.map((size) => (
-                    <button key={size} className="px-4 h-12 border-2 border-gray-200 rounded-xl text-sm font-medium hover:border-amber-600 hover:text-amber-600 transition">
-                      {size}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Colors */}
-            {colors.length > 0 && (
-              <div>
-                <p className="font-medium text-gray-800 mb-3">Color</p>
-                <div className="flex gap-3 flex-wrap">
-                  {colors.map((color) => (
-                    <button key={color} className="px-4 h-10 border-2 border-gray-200 rounded-full text-sm hover:border-amber-600 hover:text-amber-600 transition">
-                      {color}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            )}
-
-            {/* Quantity */}
-            <div>
-              <p className="font-medium text-gray-800 mb-3">Quantity</p>
-              <div className="flex items-center border-2 border-gray-200 rounded-xl overflow-hidden w-fit">
-                <button className="px-4 py-2 text-gray-600 hover:bg-gray-50 transition text-lg">−</button>
-                <span className="px-6 py-2 font-medium">1</span>
-                <button className="px-4 py-2 text-gray-600 hover:bg-gray-50 transition text-lg">+</button>
-              </div>
-            </div>
-
-            {/* Action Buttons */}
-            <div className="flex gap-4 mt-2">
-              <button className="flex-1 bg-amber-600 hover:bg-amber-700 text-white py-4 rounded-full font-semibold transition">
-                Add to Cart 🛍️
-              </button>
-              <button className="flex-1 border-2 border-gray-900 text-gray-900 hover:bg-gray-900 hover:text-white py-4 rounded-full font-semibold transition">
-                Buy Now
-              </button>
-              <button className="w-14 h-14 border-2 border-gray-200 rounded-full flex items-center justify-center hover:border-red-400 hover:text-red-400 transition text-xl">
-                ♡
-              </button>
-            </div>
-
+            <AddToCart product={product} />
             {/* Delivery Info */}
             <div className="border-t border-gray-200 pt-6 grid grid-cols-3 gap-4 text-center">
               {[
