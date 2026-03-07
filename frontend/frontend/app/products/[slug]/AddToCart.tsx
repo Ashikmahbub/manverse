@@ -1,7 +1,7 @@
 "use client";
 
 import { useState } from "react";
-import { useCart } from "../../../store/cartStore";
+import { useCart } from "../../store/cartStore";
 import { useRouter } from "next/navigation";
 
 interface Props {

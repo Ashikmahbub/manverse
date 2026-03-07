@@ -1,5 +1,5 @@
 "use client";
-import { useCart } from "@/store/cartStore";
+import { useCart } from "@/app/store/cartStore";
 
 // ci cd test test again
 

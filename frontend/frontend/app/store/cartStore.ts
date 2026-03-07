@@ -5,7 +5,7 @@ import { createContext, useContext, useEffect, useState, ReactNode } from "react
 export interface CartItem {
   id: number;
   name: string;
-  price: string;
+  price: number;
   image_url: string | null;
   slug: string;
   size: string;
@@ -23,14 +23,16 @@ interface CartContextType {
   totalPrice: number;
 }
 
-const CartContext = createContext<CartContextType | null>(null);
+const CartContext = createContext<CartContextType | undefined>(undefined);
 
 export function CartProvider({ children }: { children: ReactNode }) {
   const [cart, setCart] = useState<CartItem[]>([]);
 
   useEffect(() => {
-    const stored = localStorage.getItem("manverse_cart");
-    if (stored) setCart(JSON.parse(stored));
+    if (typeof window !== "undefined") {
+      const stored = localStorage.getItem("manverse_cart");
+      if (stored) setCart(JSON.parse(stored));
+    }
   }, []);
 
   useEffect(() => {
@@ -42,6 +44,7 @@ export function CartProvider({ children }: { children: ReactNode }) {
       const existing = prev.find(
         (i) => i.id === item.id && i.size === item.size && i.color === item.color
       );
+
       if (existing) {
         return prev.map((i) =>
           i.id === item.id && i.size === item.size && i.color === item.color
@@ -49,30 +52,54 @@ export function CartProvider({ children }: { children: ReactNode }) {
             : i
         );
       }
+
       return [...prev, item];
     });
   };
 
   const removeFromCart = (id: number, size: string, color: string) => {
-    setCart((prev) => prev.filter((i) => !(i.id === id && i.size === size && i.color === color)));
+    setCart((prev) =>
+      prev.filter((i) => !(i.id === id && i.size === size && i.color === color))
+    );
   };
 
-  const updateQuantity = (id: number, size: string, color: string, quantity: number) => {
-    if (quantity < 1) return removeFromCart(id, size, color);
+  const updateQuantity = (
+    id: number,
+    size: string,
+    color: string,
+    quantity: number
+  ) => {
+    if (quantity < 1) {
+      removeFromCart(id, size, color);
+      return;
+    }
+
     setCart((prev) =>
       prev.map((i) =>
-        i.id === id && i.size === size && i.color === color ? { ...i, quantity } : i
+        i.id === id && i.size === size && i.color === color
+          ? { ...i, quantity }
+          : i
       )
     );
   };
 
   const clearCart = () => setCart([]);
 
-  const totalItems = cart.reduce((sum, i) => sum + i.quantity, 0);
-  const totalPrice = cart.reduce((sum, i) => sum + parseFloat(i.price) * i.quantity, 0);
+  const totalItems = cart.reduce((sum, item) => sum + item.quantity, 0);
+  const totalPrice = cart.reduce((sum, item) => sum + item.price * item.quantity, 0);
 
   return (
-    <CartContext.Provider value={{ cart, addToCart, removeFromCart, updateQuantity, clearCart, totalItems, totalPrice }}>
+    <CartContext.Provider
+      value={{
+        cart,
+        addToCart,
+        removeFromCart,
+        updateQuantity,
+        clearCart,
+        totalItems,
+        totalPrice,
+      }}
+    >
       {children}
     </CartContext.Provider>
   );
@@ -80,6 +107,10 @@ export function CartProvider({ children }: { children: ReactNode }) {
 
 export function useCart() {
   const ctx = useContext(CartContext);
-  if (!ctx) throw new Error("useCart must be used within CartProvider");
+
+  if (!ctx) {
+    throw new Error("useCart must be used inside CartProvider");
+  }
+
   return ctx;
 }
