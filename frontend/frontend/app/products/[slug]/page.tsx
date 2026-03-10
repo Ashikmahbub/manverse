@@ -55,7 +55,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   return (
     <div className="min-h-screen bg-[#faf7f2]">
 
-      {/* NAVBAR */}
+      {/* NAVBAR
       <nav className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-gray-100">
         <div className="max-w-[1280px] mx-auto px-6 py-4 flex justify-between items-center">
           <Link href="/" className="text-2xl font-bold tracking-widest">
@@ -70,7 +70,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
             <button className="text-gray-600 hover:text-amber-600 text-xl">🛍️</button>
           </div>
         </div>
-      </nav>
+      </nav> */}
 
       {/* BREADCRUMB */}
       <div className="max-w-[1280px] mx-auto px-6 py-4 text-sm text-gray-400">
