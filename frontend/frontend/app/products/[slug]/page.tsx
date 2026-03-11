@@ -55,23 +55,7 @@ export default async function ProductPage({ params }: { params: Promise<{ slug: 
   return (
     <div className="min-h-screen bg-[#faf7f2]">
 
-      {/* NAVBAR
-      <nav className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-gray-100">
-        <div className="max-w-[1280px] mx-auto px-6 py-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold tracking-widest">
-            MAN<span className="text-amber-600">VERSE</span>
-          </Link>
-          <div className="hidden md:flex gap-8 text-sm font-medium text-gray-600">
-            <Link href="/#featured" className="hover:text-amber-600 transition">Featured</Link>
-            <Link href="/#trending" className="hover:text-amber-600 transition">Trending</Link>
-            <Link href="/#arrivals" className="hover:text-amber-600 transition">New Arrivals</Link>
-          </div>
-          <div className="flex gap-4 items-center">
-            <button className="text-gray-600 hover:text-amber-600 text-xl">🛍️</button>
-          </div>
-        </div>
-      </nav> */}
-
+  
       {/* BREADCRUMB */}
       <div className="max-w-[1280px] mx-auto px-6 py-4 text-sm text-gray-400">
         <Link href="/" className="hover:text-amber-600 transition">Home</Link>
