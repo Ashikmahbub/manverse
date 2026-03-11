@@ -1,12 +1,19 @@
 from django.db import models
-
+ 
 class Category(models.Model):
+    GENDER_CHOICES = (
+        ('men', 'Men'),
+        ('women', 'Women'),
+        ('kids', 'Kids'),
+        ('unisex', 'Unisex'),
+    )
     name = models.CharField(max_length=100)
     slug = models.SlugField(unique=True)
+    gender = models.CharField(max_length=10, choices=GENDER_CHOICES, default='unisex')
+    parent = models.ForeignKey('self', on_delete=models.CASCADE, null=True, blank=True, related_name='subcategories')
 
     def __str__(self):
         return self.name
-
 
 class Product(models.Model):
     name = models.CharField(max_length=200)
