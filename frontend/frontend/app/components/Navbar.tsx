@@ -2,7 +2,7 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useCart } from "../../store/cartStore";
+import { useCart } from "../store/cartStore";
 import { useRouter } from "next/navigation";
 
 export default function Navbar() {
