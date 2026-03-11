@@ -30,3 +30,20 @@ class ProfileView(APIView):
             serializer.save()
             return Response(serializer.data)
         return Response(serializer.errors, status=status.HTTP_400_BAD_REQUEST)
+class OrderHistoryView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        orders = Order.objects.filter(phone=request.user.username).order_by('-created_at')
+        # Better: link orders to user
+        data = []
+        for order in Order.objects.all().order_by('-created_at')[:20]:
+            items = OrderItem.objects.filter(order=order)
+            data.append({
+                'id': order.id,
+                'status': order.status,
+                'total_amount': str(order.total_amount),
+                'created_at': order.created_at.strftime('%b %d, %Y'),
+                'items': [{'product': i.product, 'quantity': i.quantity, 'price': str(i.price)} for i in items]
+            })
+        return Response(data)

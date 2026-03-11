@@ -2,16 +2,23 @@
 
 import { useEffect, useState } from "react";
 import Link from "next/link";
-import { useCart } from "../store/cartStore";
+import { useCart } from "../../store/cartStore";
 
 export default function Navbar() {
   const { totalItems } = useCart();
   const [user, setUser] = useState<string | null>(null);
   const [menuOpen, setMenuOpen] = useState(false);
 
-  useEffect(() => {
+  const checkUser = () => {
     const username = localStorage.getItem("username");
-    if (username) setUser(username);
+    setUser(username);
+  };
+
+  useEffect(() => {
+    checkUser();
+    // Listen for login/logout events
+    window.addEventListener("userChanged", checkUser);
+    return () => window.removeEventListener("userChanged", checkUser);
   }, []);
 
   const logout = () => {
@@ -19,6 +26,7 @@ export default function Navbar() {
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("username");
     setUser(null);
+    window.dispatchEvent(new Event("userChanged"));
     window.location.href = "/";
   };
 
@@ -28,14 +36,12 @@ export default function Navbar() {
         <Link href="/" className="text-2xl font-bold tracking-widest text-gray-900">
           MAN<span className="text-amber-600">VERSE</span>
         </Link>
-
         <div className="hidden md:flex gap-8 text-sm font-medium text-gray-600">
           <a href="/#featured" className="hover:text-amber-600 transition">Featured</a>
           <a href="/#trending" className="hover:text-amber-600 transition">Trending</a>
           <a href="/#arrivals" className="hover:text-amber-600 transition">New Arrivals</a>
           <a href="/#" className="hover:text-amber-600 transition">Collections</a>
         </div>
-
         <div className="hidden md:flex gap-4 items-center">
           <button className="text-gray-600 hover:text-amber-600 transition text-xl">🔍</button>
           <Link href="/cart" className="text-gray-600 hover:text-amber-600 transition text-xl relative">
@@ -60,11 +66,8 @@ export default function Navbar() {
             </Link>
           )}
         </div>
-
         <button className="md:hidden text-2xl" onClick={() => setMenuOpen(!menuOpen)}>☰</button>
       </div>
-
-      {/* Mobile Menu */}
       {menuOpen && (
         <div className="md:hidden bg-white border-t px-6 py-4 flex flex-col gap-4 text-sm font-medium text-gray-600">
           <a href="/#featured" onClick={() => setMenuOpen(false)}>Featured</a>

@@ -27,6 +27,7 @@ export default function LoginPage() {
       localStorage.setItem("access_token", data.access);
       localStorage.setItem("refresh_token", data.refresh);
       localStorage.setItem("username", form.username);
+      window.dispatchEvent(new Event("userChanged"));
       router.push("/");
     } catch {
       setError("Something went wrong");

@@ -1,7 +1,6 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import Link from "next/link";
 import { useRouter } from "next/navigation";
 
 interface UserProfile {
@@ -12,43 +11,59 @@ interface UserProfile {
   last_name: string;
 }
 
+interface OrderItem {
+  product: string;
+  quantity: number;
+  price: string;
+}
+
+interface Order {
+  id: number;
+  status: string;
+  total_amount: string;
+  created_at: string;
+  items: OrderItem[];
+}
+
 export default function ProfilePage() {
   const router = useRouter();
   const [profile, setProfile] = useState<UserProfile | null>(null);
+  const [orders, setOrders] = useState<Order[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState("");
+  const [activeTab, setActiveTab] = useState<"profile" | "orders">("profile");
 
   useEffect(() => {
     const token = localStorage.getItem("access_token");
-    if (!token) {
+    if (!token) { router.push("/login"); return; }
+
+    Promise.all([
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/profile/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }).then(r => r.json()),
+      fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/orders/`, {
+        headers: { Authorization: `Bearer ${token}` },
+      }).then(r => r.json()),
+    ]).then(([profileData, ordersData]) => {
+      setProfile(profileData);
+      setOrders(ordersData);
+      setLoading(false);
+    }).catch(() => {
       router.push("/login");
-      return;
-    }
-    fetch(`${process.env.NEXT_PUBLIC_API_URL}/api/users/profile/`, {
-      headers: { Authorization: `Bearer ${token}` },
-    })
-      .then((res) => {
-        if (res.status === 401) {
-          router.push("/login");
-          return null;
-        }
-        return res.json();
-      })
-      .then((data) => {
-        if (data) setProfile(data);
-        setLoading(false);
-      })
-      .catch(() => {
-        setError("Failed to load profile");
-        setLoading(false);
-      });
+    });
   }, []);
 
   const logout = () => {
     localStorage.removeItem("access_token");
     localStorage.removeItem("refresh_token");
     localStorage.removeItem("username");
+    window.dispatchEvent(new Event("userChanged"));
     router.push("/");
+  };
+
+  const statusColor = (status: string) => {
+    if (status === "DELIVERED") return "bg-green-100 text-green-700";
+    if (status === "CONFIRMED") return "bg-blue-100 text-blue-700";
+    return "bg-amber-100 text-amber-700";
   };
 
   if (loading) return (
@@ -59,67 +74,93 @@ export default function ProfilePage() {
 
   return (
     <div className="min-h-screen bg-[#faf7f2]">
-      {/* NAVBAR */}
-      {/* <nav className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-gray-100">
-        <div className="max-w-[1280px] mx-auto px-6 py-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold tracking-widest text-gray-900">
-            MAN<span className="text-amber-600">VERSE</span>
-          </Link>
-          <div className="flex gap-4 items-center">
-            <Link href="/cart" className="text-gray-600 hover:text-amber-600 transition text-xl">🛍️</Link>
-            <button onClick={logout} className="bg-amber-600 text-white text-sm px-5 py-2 rounded-full hover:bg-amber-700 transition">
-              Logout
-            </button>
+      <div className="max-w-[800px] mx-auto px-6 py-16">
+
+        {/* Header */}
+        <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100 mb-6 flex items-center gap-4">
+          <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center text-2xl">👤</div>
+          <div className="flex-1">
+            <h1 className="text-xl font-semibold text-gray-900">{profile?.username}</h1>
+            <p className="text-gray-400 text-sm">{profile?.email || "No email set"}</p>
           </div>
+          <button onClick={logout} className="bg-red-50 text-red-500 px-4 py-2 rounded-full text-sm hover:bg-red-100 transition">
+            Logout
+          </button>
         </div>
-      </nav> */}
 
-      <div className="max-w-[600px] mx-auto px-6 py-16">
-        <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-8">
+        {/* Tabs */}
+        <div className="flex gap-2 mb-6">
+          <button
+            onClick={() => setActiveTab("profile")}
+            className={`px-6 py-2 rounded-full text-sm font-medium transition ${activeTab === "profile" ? "bg-amber-600 text-white" : "bg-white text-gray-600 border border-gray-200"}`}
+          >
+            Profile
+          </button>
+          <button
+            onClick={() => setActiveTab("orders")}
+            className={`px-6 py-2 rounded-full text-sm font-medium transition ${activeTab === "orders" ? "bg-amber-600 text-white" : "bg-white text-gray-600 border border-gray-200"}`}
+          >
+            Order History ({orders.length})
+          </button>
+        </div>
 
-          {/* Avatar */}
-          <div className="flex flex-col items-center mb-8">
-            <div className="w-20 h-20 bg-amber-100 rounded-full flex items-center justify-center text-3xl mb-4">
-              👤
+        {/* Profile Tab */}
+        {activeTab === "profile" && (
+          <div className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+            <h2 className="text-lg font-semibold mb-4">Account Details</h2>
+            <div className="flex flex-col gap-3">
+              {[
+                { label: "Username", value: profile?.username },
+                { label: "Email", value: profile?.email || "—" },
+                { label: "First Name", value: profile?.first_name || "—" },
+                { label: "Last Name", value: profile?.last_name || "—" },
+              ].map((item) => (
+                <div key={item.label} className="flex justify-between py-3 border-b border-gray-100">
+                  <span className="text-gray-500 text-sm">{item.label}</span>
+                  <span className="text-gray-900 font-medium">{item.value}</span>
+                </div>
+              ))}
             </div>
-            <h1 className="text-2xl font-semibold text-gray-900">{profile?.username}</h1>
-            <p className="text-gray-400 text-sm mt-1">{profile?.email}</p>
           </div>
+        )}
 
-          {error && (
-            <div className="bg-red-50 text-red-600 text-sm px-4 py-3 rounded-xl mb-4">{error}</div>
-          )}
-
-          {/* Profile Info */}
+        {/* Orders Tab */}
+        {activeTab === "orders" && (
           <div className="flex flex-col gap-4">
-            <div className="flex justify-between py-3 border-b border-gray-100">
-              <span className="text-gray-500 text-sm">Username</span>
-              <span className="text-gray-900 font-medium">{profile?.username}</span>
-            </div>
-            <div className="flex justify-between py-3 border-b border-gray-100">
-              <span className="text-gray-500 text-sm">Email</span>
-              <span className="text-gray-900 font-medium">{profile?.email || "—"}</span>
-            </div>
-            <div className="flex justify-between py-3 border-b border-gray-100">
-              <span className="text-gray-500 text-sm">First Name</span>
-              <span className="text-gray-900 font-medium">{profile?.first_name || "—"}</span>
-            </div>
-            <div className="flex justify-between py-3 border-b border-gray-100">
-              <span className="text-gray-500 text-sm">Last Name</span>
-              <span className="text-gray-900 font-medium">{profile?.last_name || "—"}</span>
-            </div>
+            {orders.length === 0 ? (
+              <div className="bg-white rounded-2xl p-12 text-center shadow-sm border border-gray-100">
+                <p className="text-4xl mb-4">📦</p>
+                <p className="text-gray-500">No orders yet</p>
+              </div>
+            ) : (
+              orders.map((order) => (
+                <div key={order.id} className="bg-white rounded-2xl p-6 shadow-sm border border-gray-100">
+                  <div className="flex justify-between items-start mb-4">
+                    <div>
+                      <p className="font-semibold text-gray-900">Order #{order.id}</p>
+                      <p className="text-sm text-gray-400">{order.created_at}</p>
+                    </div>
+                    <span className={`text-xs px-3 py-1 rounded-full font-medium ${statusColor(order.status)}`}>
+                      {order.status}
+                    </span>
+                  </div>
+                  <div className="flex flex-col gap-2 mb-4">
+                    {order.items.map((item, i) => (
+                      <div key={i} className="flex justify-between text-sm">
+                        <span className="text-gray-600">{item.product} x{item.quantity}</span>
+                        <span className="text-gray-900 font-medium">৳ {(parseFloat(item.price) * item.quantity).toFixed(2)}</span>
+                      </div>
+                    ))}
+                  </div>
+                  <div className="border-t border-gray-100 pt-3 flex justify-between">
+                    <span className="text-sm text-gray-500">Total</span>
+                    <span className="font-semibold text-amber-600">৳ {order.total_amount}</span>
+                  </div>
+                </div>
+              ))
+            )}
           </div>
-
-          {/* Actions */}
-          <div className="flex flex-col gap-3 mt-8">
-            <Link href="/cart" className="w-full bg-amber-600 hover:bg-amber-700 text-white py-3 rounded-full font-semibold transition text-center">
-              View Cart 🛍️
-            </Link>
-            <button onClick={logout} className="w-full border border-gray-200 text-gray-600 py-3 rounded-full font-medium hover:border-red-400 hover:text-red-500 transition">
-              Logout
-            </button>
-          </div>
-        </div>
+        )}
       </div>
     </div>
   );

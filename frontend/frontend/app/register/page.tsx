@@ -35,6 +35,7 @@ export default function RegisterPage() {
       localStorage.setItem("access_token", loginData.access);
       localStorage.setItem("refresh_token", loginData.refresh);
       localStorage.setItem("username", form.username);
+      window.dispatchEvent(new Event("userChanged"));
       router.push("/");
     } catch {
       setError("Something went wrong");
