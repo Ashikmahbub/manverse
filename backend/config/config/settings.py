@@ -185,3 +185,12 @@ CELERY_ACCEPT_CONTENT = ['json']
 CELERY_TASK_SERIALIZER = 'json'
 CELERY_RESULT_SERIALIZER = 'json'
 CELERY_TIMEZONE = 'UTC'
+# Add these lines
+SSLCOMMERZ_STORE_ID       = os.environ.get("SSLCOMMERZ_STORE_ID", "")
+SSLCOMMERZ_STORE_PASSWORD = os.environ.get("SSLCOMMERZ_STORE_PASSWORD", "")
+SSLCOMMERZ_IS_LIVE        = os.environ.get("SSLCOMMERZ_IS_LIVE", "False") == "True"
+BACKEND_BASE_URL          = os.environ.get("BACKEND_BASE_URL", "http://103.102.46.200")
+FRONTEND_BASE_URL         = os.environ.get("FRONTEND_BASE_URL", "http://103.102.46.200")
+STRIPE_SECRET_KEY      = os.environ.get("STRIPE_SECRET_KEY", "")
+STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "")
+STRIPE_WEBHOOK_SECRET  = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
