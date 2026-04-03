@@ -204,3 +204,4 @@ EMAIL_HOST_USER     = os.getenv('EMAIL_HOST_USER', '')
 EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
 DEFAULT_FROM_EMAIL  = os.getenv('EMAIL_HOST_USER', 'noreply@manverse.com')
 ADMIN_EMAIL         = os.getenv('ADMIN_EMAIL', '')
+CELERY_BROKER_CONNECTION_RETRY_ON_STARTUP = True
