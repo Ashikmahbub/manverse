@@ -1,15 +1,3 @@
-# FROM node:22-alpine
-
-# WORKDIR /app
-
-# COPY package*.json ./
-# RUN npm install
-
-# COPY . .
-
-# RUN npm run build
-
-# CMD ["npm", "start"]
 # ---------- BUILD STAGE ----------
 FROM node:22-alpine AS builder
 
@@ -20,9 +8,12 @@ RUN npm install
 
 COPY . .
 
-# Accept API URL as build argument
+# Accept build arguments
 ARG NEXT_PUBLIC_API_URL
 ENV NEXT_PUBLIC_API_URL=$NEXT_PUBLIC_API_URL
+
+ARG NEXT_PUBLIC_STRIPE_KEY
+ENV NEXT_PUBLIC_STRIPE_KEY=$NEXT_PUBLIC_STRIPE_KEY
 
 RUN npm run build
 
