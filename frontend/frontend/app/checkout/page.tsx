@@ -28,8 +28,8 @@ function StripeForm({ form, items, total }: any) {
     setLoading(true);
     setError("");
 
-    const token = localStorage.getItem("token");
-
+    // ✅ Fix
+    const token = localStorage.getItem("access_token");
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/orders/stripe/create-payment/`,
       {
@@ -184,7 +184,7 @@ export default function CheckoutPage() {
     setLoading(true);
     setError("");
 
-    const token = localStorage.getItem("token");
+    const token = localStorage.getItem("access_token");
     if (!token) { router.push("/login?redirect=/checkout"); return; }
 
     const res = await fetch(
