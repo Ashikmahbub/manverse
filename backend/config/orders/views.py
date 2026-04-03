@@ -9,30 +9,41 @@ from rest_framework.response import Response
 from .models import Order, OrderItem
 from .sslcommerz import SSLCommerz
 from django.conf import settings
-from .tasks import send_order_emails
+from .tasks import send_order_emails, send_status_email
+
 ssl = SSLCommerz()
 
+
+# ── Helper ────────────────────────────────────────────────────────────────────
+def calc_delivery_charge(city: str) -> int:
+    return 60 if city.strip().lower() == "dhaka" else 120
+
+
+# ── Initiate SSLCommerz Payment ───────────────────────────────────────────────
 class InitiatePaymentView(APIView):
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
         data  = request.data
         items = data.get("items", [])
-        total = sum(
-            float(i["price"]) * int(i["quantity"])
-            for i in items
-        )
+
+        subtotal        = sum(float(i["price"]) * int(i["quantity"]) for i in items)
+        delivery_charge = calc_delivery_charge(data.get("city", ""))
+        total           = subtotal + delivery_charge
 
         tran_id = f"MV-{uuid.uuid4().hex[:12].upper()}"
         order   = Order.objects.create(
-            user         = request.user,
-            full_name    = data["full_name"],
-            phone        = data["phone"],
-            address      = data["address"],
-            city         = data["city"],
-            total_amount = total,
-            tran_id      = tran_id,
-            status       = "PENDING",
+            user            = request.user,
+            full_name       = data["full_name"],
+            phone           = data["phone"],
+            address         = data["address"],
+            city            = data["city"],
+            postcode        = data.get("postcode", ""),
+            total_amount    = total,
+            delivery_charge = delivery_charge,
+            tran_id         = tran_id,
+            payment_method  = "sslcommerz",
+            status          = "PENDING",
         )
         for item in items:
             OrderItem.objects.create(
@@ -44,7 +55,7 @@ class InitiatePaymentView(APIView):
                 quantity = int(item["quantity"]),
             )
 
-        base = settings.BACKEND_BASE_URL
+        base   = settings.BACKEND_BASE_URL
         result = ssl.initiate({
             "total_amount":    total,
             "tran_id":         tran_id,
@@ -82,6 +93,62 @@ class InitiatePaymentView(APIView):
         return Response({"error": result.get("failedreason")}, status=502)
 
 
+# ── Cash on Delivery ──────────────────────────────────────────────────────────
+class CODOrderView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        data  = request.data
+        items = data.get("items", [])
+
+        if not items:
+            return Response({"error": "Cart is empty."}, status=400)
+
+        required = ["full_name", "phone", "address", "city", "postcode"]
+        missing  = [f for f in required if not data.get(f)]
+        if missing:
+            return Response({"error": f"Missing fields: {', '.join(missing)}"}, status=400)
+
+        subtotal        = sum(float(i["price"]) * int(i["quantity"]) for i in items)
+        delivery_charge = calc_delivery_charge(data.get("city", ""))
+        total           = subtotal + delivery_charge
+
+        tran_id = f"MV-{uuid.uuid4().hex[:12].upper()}"
+        order   = Order.objects.create(
+            user            = request.user,
+            full_name       = data["full_name"],
+            phone           = data["phone"],
+            address         = data["address"],
+            city            = data["city"],
+            postcode        = data.get("postcode", ""),
+            total_amount    = total,
+            delivery_charge = delivery_charge,
+            tran_id         = tran_id,
+            payment_method  = "cod",
+            status          = "PENDING",
+        )
+        for item in items:
+            OrderItem.objects.create(
+                order    = order,
+                product  = item.get("product", ""),
+                size     = item.get("size", ""),
+                color    = item.get("color", ""),
+                price    = float(item["price"]),
+                quantity = int(item["quantity"]),
+            )
+
+        # Fire confirmation email immediately
+        send_order_emails.delay(order.id)
+
+        return Response({
+            "order_code": order.tran_id,
+            "order_id":   order.id,
+            "total":      str(order.total_amount),
+            "status":     order.status,
+        }, status=201)
+
+
+# ── SSLCommerz Callbacks ──────────────────────────────────────────────────────
 @method_decorator(csrf_exempt, name="dispatch")
 class PaymentSuccessView(APIView):
     permission_classes = [AllowAny]
@@ -103,11 +170,11 @@ class PaymentSuccessView(APIView):
 
         try:
             order = Order.objects.get(tran_id=tran_id)
-            if order.status != "PAID":              # guard: no double emails
+            if order.status != "PAID":
                 order.status = "PAID"
                 order.val_id = val_id
                 order.save()
-                send_order_emails.delay(order.id)   # fire celery task
+                send_order_emails.delay(order.id)
         except Order.DoesNotExist:
             pass
 
@@ -175,7 +242,10 @@ class PaymentIPNView(APIView):
         except Order.DoesNotExist:
             pass
 
+        return Response({"status": "ok"})
 
+
+# ── Order Status ──────────────────────────────────────────────────────────────
 class OrderStatusView(APIView):
     permission_classes = [IsAuthenticated]
 
@@ -183,32 +253,38 @@ class OrderStatusView(APIView):
         try:
             order = Order.objects.get(tran_id=tran_id, user=request.user)
             return Response({
-                "status":   order.status,
-                "order_id": order.id,
-                "tran_id":  order.tran_id,
-                "total":    str(order.total_amount),
+                "status":         order.status,
+                "order_id":       order.id,
+                "order_code":     order.tran_id,
+                "tran_id":        order.tran_id,
+                "total":          str(order.total_amount),
+                "delivery_charge": str(order.delivery_charge),
             })
         except Order.DoesNotExist:
             return Response({"error": "Not found"}, status=404)
 
 
+# ── Order History (profile page) ──────────────────────────────────────────────
 class OrderHistoryView(APIView):
     permission_classes = [IsAuthenticated]
 
     def get(self, request):
-        orders = Order.objects.filter(user=request.user).order_by("-id")
-        data = []
+        orders = Order.objects.filter(user=request.user).prefetch_related("items").order_by("-id")
+        data   = []
         for order in orders:
-            items = OrderItem.objects.filter(order=order)
             data.append({
-                "id":           order.id,
-                "tran_id":      order.tran_id,
-                "status":       order.status,
-                "total_amount": str(order.total_amount),
-                "full_name":    order.full_name,
-                "phone":        order.phone,
-                "address":      order.address,
-                "city":         order.city,
+                "id":              order.id,
+                "order_code":      order.tran_id,
+                "tran_id":         order.tran_id,
+                "status":          order.status,
+                "total_amount":    str(order.total_amount),
+                "delivery_charge": str(order.delivery_charge),
+                "payment_method":  order.get_payment_method_display(),
+                "full_name":       order.full_name,
+                "phone":           order.phone,
+                "address":         order.address,
+                "city":            order.city,
+                "created_at":      order.created_at.strftime("%d %b %Y"),
                 "items": [
                     {
                         "product":  item.product,
@@ -216,34 +292,40 @@ class OrderHistoryView(APIView):
                         "color":    item.color,
                         "price":    str(item.price),
                         "quantity": item.quantity,
+                        "subtotal": str(item.subtotal),
                     }
-                    for item in items
+                    for item in order.items.all()
                 ],
             })
         return Response(data)
+
+
+# ── Order Detail ──────────────────────────────────────────────────────────────
 class OrderDetailView(APIView):
-    """GET /api/orders/detail/<tran_id>/"""
     permission_classes = [IsAuthenticated]
 
     def get(self, request, tran_id):
         try:
-            order = Order.objects.prefetch_related('items').get(
+            order = Order.objects.prefetch_related("items").get(
                 tran_id=tran_id,
-                user=request.user
+                user=request.user,
             )
         except Order.DoesNotExist:
             return Response({"error": "Not found"}, status=404)
 
         return Response({
-            "tran_id":        order.tran_id,
-            "status":         order.status,
-            "full_name":      order.full_name,
-            "phone":          order.phone,
-            "address":        order.address,
-            "city":           order.city,
-            "total_amount":   str(order.total_amount),
-            "payment_method": order.get_payment_method_display(),
-            "created_at":     order.created_at.strftime("%d %b %Y, %I:%M %p"),
+            "order_code":      order.tran_id,
+            "tran_id":         order.tran_id,
+            "status":          order.status,
+            "full_name":       order.full_name,
+            "phone":           order.phone,
+            "address":         order.address,
+            "city":            order.city,
+            "postcode":        order.postcode,
+            "total_amount":    str(order.total_amount),
+            "delivery_charge": str(order.delivery_charge),
+            "payment_method":  order.get_payment_method_display(),
+            "created_at":      order.created_at.strftime("%d %b %Y, %I:%M %p"),
             "items": [
                 {
                     "product":  i.product,
@@ -255,4 +337,4 @@ class OrderDetailView(APIView):
                 }
                 for i in order.items.all()
             ],
-        })   
+        })

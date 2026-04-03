@@ -1,0 +1,19 @@
+Hi {{ full_name }},
+
+Your order {{ tran_id }} status has been updated to: {{ status }}.
+
+Items:
+{% for item in items %}
+- {{ item.product }} x{{ item.quantity }} — ৳{{ item.subtotal }}
+{% endfor %}
+
+Subtotal:  ৳{{ total }}
+Delivery:  ৳{{ delivery_charge }}
+
+Delivery Address: {{ address }}, {{ city }}
+Phone: {{ phone }}
+Payment: {{ payment_method }}
+
+Track your order: {{ site_url }}/profile
+
+— Manverse Team

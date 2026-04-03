@@ -15,13 +15,49 @@ services:
     container_name: manverse_redis
     restart: always
 
+  # ── Auto migration on every deploy ───────────────────────────
+  migrate:
+    build: ./backend
+    container_name: manverse_migrate
+    command: >
+      sh -c "cd /app/config &&
+             python manage.py makemigrations --no-input &&
+             python manage.py migrate --no-input &&
+             python manage.py collectstatic --no-input --clear"
+    depends_on:
+      - db
+    environment:
+      DB_HOST: db
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_URL: redis://redis:6379/1
+      BACKEND_BASE_URL: ${BACKEND_BASE_URL}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL}
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      SSLCOMMERZ_STORE_ID: ${SSLCOMMERZ_STORE_ID}
+      SSLCOMMERZ_STORE_PASSWORD: ${SSLCOMMERZ_STORE_PASSWORD}
+      SSLCOMMERZ_IS_LIVE: ${SSLCOMMERZ_IS_LIVE}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+    volumes:
+      - /home/manverse/static:/app/config/staticfiles
+      - /home/manverse/media:/app/config/media
+    restart: on-failure
+
   backend:
     build: ./backend
     container_name: manverse_backend
     restart: always
     depends_on:
-      - db
-      - redis
+      migrate:
+        condition: service_completed_successfully
+      db:
+        condition: service_started
+      redis:
+        condition: service_started
     ports:
       - "8000:8000"
     environment:
@@ -37,7 +73,6 @@ services:
       FRONTEND_BASE_URL: ${FRONTEND_BASE_URL}
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
-      # Email
       EMAIL_HOST_USER: ${EMAIL_HOST_USER}
       EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
@@ -45,15 +80,18 @@ services:
       - /home/manverse/static:/app/config/staticfiles
       - /home/manverse/media:/app/config/media
 
-  # ── NEW: Celery worker ──────────────────────────────────────
   celery:
     build: ./backend
     container_name: manverse_celery
     restart: always
     command: celery -A config worker --loglevel=info --concurrency=2
     depends_on:
-      - db
-      - redis
+      migrate:
+        condition: service_completed_successfully
+      db:
+        condition: service_started
+      redis:
+        condition: service_started
     environment:
       DB_HOST: db
       DB_NAME: ${POSTGRES_DB}
@@ -62,10 +100,11 @@ services:
       REDIS_URL: redis://redis:6379/1
       BACKEND_BASE_URL: ${BACKEND_BASE_URL}
       FRONTEND_BASE_URL: ${FRONTEND_BASE_URL}
-      # Email — celery worker sends the actual emails
       EMAIL_HOST_USER: ${EMAIL_HOST_USER}
       EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
       ADMIN_EMAIL: ${ADMIN_EMAIL}
+      STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
+      STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
     volumes:
       - /home/manverse/static:/app/config/staticfiles
       - /home/manverse/media:/app/config/media

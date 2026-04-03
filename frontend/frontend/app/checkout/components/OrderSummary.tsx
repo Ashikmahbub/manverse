@@ -1,5 +1,7 @@
 "use client";
 
+type PaymentMethodType = "sslcommerz" | "stripe" | "cod";
+
 interface CartItem {
   name: string;
   size: string;
@@ -10,12 +12,17 @@ interface CartItem {
 
 interface Props {
   cart: CartItem[];
-  total: number;
+  subtotal: number;          // renamed from total — just items sum
+  deliveryCharge: number;
   totalInUSD: string;
-  paymentMethod: "sslcommerz" | "stripe";
+  paymentMethod: PaymentMethodType;
 }
 
-export default function OrderSummary({ cart, total, totalInUSD, paymentMethod }: Props) {
+export default function OrderSummary({
+  cart, subtotal, deliveryCharge, totalInUSD, paymentMethod
+}: Props) {
+  const grandTotal = subtotal + deliveryCharge;
+
   return (
     <div className="bg-white/5 border border-white/10 rounded-xl p-6">
       <h2 className="text-white font-semibold text-lg mb-4">Order Summary</h2>
@@ -46,11 +53,13 @@ export default function OrderSummary({ cart, total, totalInUSD, paymentMethod }:
       <div className="mt-4 pt-4 border-t border-white/10 space-y-2">
         <div className="flex justify-between items-center">
           <span className="text-gray-400 text-sm">Subtotal</span>
-          <span className="text-white font-mono">৳{total.toFixed(0)}</span>
+          <span className="text-white font-mono">৳{subtotal.toFixed(0)}</span>
         </div>
         <div className="flex justify-between items-center">
           <span className="text-gray-400 text-sm">Delivery</span>
-          <span className="text-green-400 text-sm font-mono">Free</span>
+          <span className={`text-sm font-mono ${deliveryCharge === 60 ? "text-green-400" : "text-amber-400"}`}>
+            ৳{deliveryCharge}
+          </span>
         </div>
         {paymentMethod === "stripe" && (
           <div className="flex justify-between items-center">
@@ -60,7 +69,7 @@ export default function OrderSummary({ cart, total, totalInUSD, paymentMethod }:
         )}
         <div className="flex justify-between items-center pt-3 border-t border-white/10">
           <span className="text-white font-semibold">Total</span>
-          <span className="text-amber-400 font-bold text-xl font-mono">৳{total.toFixed(0)}</span>
+          <span className="text-amber-400 font-bold text-xl font-mono">৳{grandTotal.toFixed(0)}</span>
         </div>
       </div>
     </div>

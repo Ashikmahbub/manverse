@@ -1,4 +1,3 @@
-from django.urls import path
 from .views import (
     InitiatePaymentView,
     PaymentSuccessView,
@@ -7,7 +6,8 @@ from .views import (
     PaymentIPNView,
     OrderStatusView,
     OrderHistoryView,
-    OrderDetailView,          # ← must be here
+    OrderDetailView,
+    CODOrderView,          # ← add this
 )
 from .stripe_views import (
     StripeCreatePaymentView,
@@ -26,5 +26,6 @@ urlpatterns = [
     path("stripe/webhook/",         StripeWebhookView.as_view()),
     path("status/<str:tran_id>/",   OrderStatusView.as_view()),
     path("history/",                OrderHistoryView.as_view()),
-    path("detail/<str:tran_id>/",   OrderDetailView.as_view()),   # ← not views.OrderDetailView
+    path("detail/<str:tran_id>/",   OrderDetailView.as_view()),
+    path("create/",                 CODOrderView.as_view()),   # ← add this
 ]

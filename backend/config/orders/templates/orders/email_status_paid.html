@@ -1,0 +1,64 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body { font-family: Arial, sans-serif; background:#f4f4f4; margin:0; padding:0; }
+  .wrap { max-width:600px; margin:30px auto; background:#fff; border-radius:8px; overflow:hidden; }
+  .hdr  { background:#111; color:#fff; padding:24px 32px; }
+  .hdr h1 { margin:0; font-size:20px; letter-spacing:3px; }
+  .hdr p  { margin:4px 0 0; font-size:12px; color:#aaa; }
+  .badge { display:inline-block; background:#16a34a; color:#fff; padding:6px 14px;
+           border-radius:20px; font-size:12px; font-weight:bold; margin-bottom:16px; }
+  .body { padding:32px; }
+  .code { background:#f8f8f8; border-left:4px solid #16a34a; padding:12px 16px;
+          font-size:17px; font-weight:bold; font-family:monospace; margin-bottom:24px; }
+  table { width:100%; border-collapse:collapse; margin-bottom:20px; }
+  th { background:#111; color:#fff; padding:9px 12px; text-align:left; font-size:12px; }
+  td { padding:9px 12px; border-bottom:1px solid #eee; font-size:13px; }
+  .ttl td { font-weight:bold; border-bottom:none; }
+  .del td { border-bottom:none; color:#555; }
+  .info { background:#faf7f2; padding:16px; border-radius:6px; font-size:13px; line-height:1.9; }
+  .btn  { display:inline-block; margin-top:20px; background:#d97706; color:#fff;
+          padding:12px 28px; border-radius:6px; text-decoration:none; font-weight:bold; font-size:13px; }
+  .ftr  { padding:18px 32px; background:#f4f4f4; text-align:center; font-size:11px; color:#999; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="hdr">
+    <h1>MANVERSE</h1>
+    <p>Payment Confirmed</p>
+  </div>
+  <div class="body">
+    <div class="badge">✅ Payment Received</div>
+    <p>Hi <strong>{{ full_name }}</strong>, your payment was successful and your order is confirmed!</p>
+    <div class="code">Order Code: {{ tran_id }}</div>
+    <table>
+      <thead><tr><th>Product</th><th>Size</th><th>Color</th><th>Qty</th><th>Subtotal</th></tr></thead>
+      <tbody>
+        {% for item in items %}
+        <tr>
+          <td>{{ item.product }}</td>
+          <td>{{ item.size|default:"-" }}</td>
+          <td>{{ item.color|default:"-" }}</td>
+          <td>{{ item.quantity }}</td>
+          <td>৳{{ item.subtotal }}</td>
+        </tr>
+        {% endfor %}
+        <tr class="del"><td colspan="4">Delivery</td><td>৳{{ delivery_charge }}</td></tr>
+        <tr class="ttl"><td colspan="4">Total</td><td>৳{{ total }}</td></tr>
+      </tbody>
+    </table>
+    <div class="info">
+      <strong>Delivery Address</strong><br>
+      {{ address }}, {{ city }}<br>
+      <strong>Phone:</strong> {{ phone }}<br>
+      <strong>Payment:</strong> {{ payment_method }}
+    </div>
+    <a href="{{ site_url }}/profile" class="btn">Track My Order →</a>
+  </div>
+  <div class="ftr">© Manverse &nbsp;|&nbsp; <a href="{{ site_url }}">{{ site_url }}</a></div>
+</div>
+</body>
+</html>
