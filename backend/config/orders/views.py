@@ -187,3 +187,32 @@ class OrderStatusView(APIView):
             })
         except Order.DoesNotExist:
             return Response({"error": "Not found"}, status=404)
+class OrderHistoryView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request):
+        orders = Order.objects.filter(user=request.user).order_by("-id")
+        data = []
+        for order in orders:
+            items = OrderItem.objects.filter(order=order)
+            data.append({
+                "id":           order.id,
+                "tran_id":      order.tran_id,
+                "status":       order.status,
+                "total_amount": str(order.total_amount),
+                "full_name":    order.full_name,
+                "phone":        order.phone,
+                "address":      order.address,
+                "city":         order.city,
+                "items": [
+                    {
+                        "product":  item.product,
+                        "size":     item.size,
+                        "color":    item.color,
+                        "price":    str(item.price),
+                        "quantity": item.quantity,
+                    }
+                    for item in items
+                ],
+            })
+        return Response(data)
