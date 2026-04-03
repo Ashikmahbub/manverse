@@ -1,7 +1,7 @@
 // frontend/frontend/app/checkout/page.tsx
 "use client";
 import { useState } from "react";
-import { useCart } from "@/app/store/cartStore";
+import { useCart } from "@/store/cartStore";
 import { useRouter } from "next/navigation";
 import { loadStripe } from "@stripe/stripe-js";
 import {
