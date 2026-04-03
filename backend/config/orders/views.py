@@ -9,7 +9,7 @@ from rest_framework.response import Response
 from .models import Order, OrderItem
 from .sslcommerz import SSLCommerz
 from django.conf import settings
-
+from .tasks import send_order_emails
 ssl = SSLCommerz()
 
 class InitiatePaymentView(APIView):
@@ -102,10 +102,12 @@ class PaymentSuccessView(APIView):
             )
 
         try:
-            order         = Order.objects.get(tran_id=tran_id)
-            order.status  = "PAID"
-            order.val_id  = val_id
-            order.save()
+            order = Order.objects.get(tran_id=tran_id)
+            if order.status != "PAID":              # guard: no double emails
+                order.status = "PAID"
+                order.val_id = val_id
+                order.save()
+                send_order_emails.delay(order.id)   # fire celery task
         except Order.DoesNotExist:
             pass
 
@@ -169,10 +171,9 @@ class PaymentIPNView(APIView):
                 order.status = "PAID"
                 order.val_id = val_id
                 order.save()
+                send_order_emails.delay(order.id)
         except Order.DoesNotExist:
             pass
-
-        return Response({"status": "ok"})
 
 
 class OrderStatusView(APIView):
@@ -220,3 +221,38 @@ class OrderHistoryView(APIView):
                 ],
             })
         return Response(data)
+class OrderDetailView(APIView):
+    """GET /api/orders/detail/<tran_id>/"""
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, tran_id):
+        try:
+            order = Order.objects.prefetch_related('items').get(
+                tran_id=tran_id,
+                user=request.user
+            )
+        except Order.DoesNotExist:
+            return Response({"error": "Not found"}, status=404)
+
+        return Response({
+            "tran_id":        order.tran_id,
+            "status":         order.status,
+            "full_name":      order.full_name,
+            "phone":          order.phone,
+            "address":        order.address,
+            "city":           order.city,
+            "total_amount":   str(order.total_amount),
+            "payment_method": order.get_payment_method_display(),
+            "created_at":     order.created_at.strftime("%d %b %Y, %I:%M %p"),
+            "items": [
+                {
+                    "product":  i.product,
+                    "size":     i.size,
+                    "color":    i.color,
+                    "price":    str(i.price),
+                    "quantity": i.quantity,
+                    "subtotal": str(i.subtotal),
+                }
+                for i in order.items.all()
+            ],
+        })   

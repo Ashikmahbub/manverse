@@ -30,15 +30,42 @@ services:
       DB_USER: ${POSTGRES_USER}
       DB_PASSWORD: ${POSTGRES_PASSWORD}
       REDIS_URL: redis://redis:6379/1
-      # SSLCommerz
       SSLCOMMERZ_STORE_ID: ${SSLCOMMERZ_STORE_ID}
       SSLCOMMERZ_STORE_PASSWORD: ${SSLCOMMERZ_STORE_PASSWORD}
       SSLCOMMERZ_IS_LIVE: ${SSLCOMMERZ_IS_LIVE}
       BACKEND_BASE_URL: ${BACKEND_BASE_URL}
       FRONTEND_BASE_URL: ${FRONTEND_BASE_URL}
-      # Stripe
       STRIPE_SECRET_KEY: ${STRIPE_SECRET_KEY}
       STRIPE_WEBHOOK_SECRET: ${STRIPE_WEBHOOK_SECRET}
+      # Email
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+    volumes:
+      - /home/manverse/static:/app/config/staticfiles
+      - /home/manverse/media:/app/config/media
+
+  # ── NEW: Celery worker ──────────────────────────────────────
+  celery:
+    build: ./backend
+    container_name: manverse_celery
+    restart: always
+    command: celery -A config worker --loglevel=info --concurrency=2
+    depends_on:
+      - db
+      - redis
+    environment:
+      DB_HOST: db
+      DB_NAME: ${POSTGRES_DB}
+      DB_USER: ${POSTGRES_USER}
+      DB_PASSWORD: ${POSTGRES_PASSWORD}
+      REDIS_URL: redis://redis:6379/1
+      BACKEND_BASE_URL: ${BACKEND_BASE_URL}
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL}
+      # Email — celery worker sends the actual emails
+      EMAIL_HOST_USER: ${EMAIL_HOST_USER}
+      EMAIL_HOST_PASSWORD: ${EMAIL_HOST_PASSWORD}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
     volumes:
       - /home/manverse/static:/app/config/staticfiles
       - /home/manverse/media:/app/config/media

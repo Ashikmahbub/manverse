@@ -32,4 +32,5 @@ urlpatterns = [
     # ── ORDER INFO ─────────────────────────────────────────────
     path("status/<str:tran_id>/",   OrderStatusView.as_view()),
     path("history/",                OrderHistoryView.as_view()),
+    path('detail/<str:tran_id>/', views.OrderDetailView.as_view()),
 ]

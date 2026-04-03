@@ -1,0 +1,13 @@
+[MANVERSE] New Order
+
+Order Code: {{ tran_id }}
+Customer:   {{ full_name }}
+Phone:      {{ phone }}
+Address:    {{ address }}, {{ city }}
+Payment:    {{ payment_method }}
+Total:      ${{ total }}
+
+ITEMS
+-----
+{% for item in items %}{{ item.product }} | {{ item.size }} | {{ item.color }} | x{{ item.quantity }} | ${{ item.subtotal }}
+{% endfor %}

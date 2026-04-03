@@ -194,3 +194,13 @@ FRONTEND_BASE_URL         = os.environ.get("FRONTEND_BASE_URL", "http://103.102.
 STRIPE_SECRET_KEY      = os.environ.get("STRIPE_SECRET_KEY", "")
 STRIPE_PUBLISHABLE_KEY = os.environ.get("STRIPE_PUBLISHABLE_KEY", "")
 STRIPE_WEBHOOK_SECRET  = os.environ.get("STRIPE_WEBHOOK_SECRET", "")
+
+# Email
+EMAIL_BACKEND       = 'django.core.mail.backends.smtp.EmailBackend'
+EMAIL_HOST          = 'smtp.gmail.com'
+EMAIL_PORT          = 587
+EMAIL_USE_TLS       = True
+EMAIL_HOST_USER     = os.getenv('EMAIL_HOST_USER', '')
+EMAIL_HOST_PASSWORD = os.getenv('EMAIL_HOST_PASSWORD', '')
+DEFAULT_FROM_EMAIL  = os.getenv('EMAIL_HOST_USER', 'noreply@manverse.com')
+ADMIN_EMAIL         = os.getenv('ADMIN_EMAIL', '')

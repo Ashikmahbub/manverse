@@ -7,6 +7,7 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from .models import Order, OrderItem
+from orders.tasks import send_order_emails
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -112,10 +113,12 @@ class StripeConfirmPaymentView(APIView):
 
         # Mark order as paid
         try:
-            order        = Order.objects.get(tran_id=tran_id, user=request.user)
-            order.status = "PAID"
-            order.val_id = payment_intent_id
-            order.save()
+            order = Order.objects.get(tran_id=tran_id, user=request.user)
+            if order.status != "PAID":
+                order.status = "PAID"
+                order.val_id = payment_intent_id
+                order.save()
+                send_order_emails.delay(order.id)
         except Order.DoesNotExist:
             return Response({"error": "Order not found"}, status=404)
 
@@ -159,6 +162,7 @@ class StripeWebhookView(APIView):
                     order.status = "PAID"
                     order.val_id = intent["id"]
                     order.save()
+                    send_order_emails.delay(order.id)
             except Order.DoesNotExist:
                 pass
 

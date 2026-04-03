@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<style>
+  body { font-family:Arial,sans-serif; background:#f4f4f4; }
+  .wrap { max-width:600px; margin:30px auto; background:#fff; border-radius:8px; padding:32px; }
+  h2 { color:#111; margin-top:0; }
+  .meta { background:#faf7f2; padding:16px; border-radius:6px; font-size:13px; line-height:1.9; margin-bottom:20px; }
+  table { width:100%; border-collapse:collapse; }
+  th { background:#333; color:#fff; padding:8px 12px; text-align:left; font-size:12px; }
+  td { padding:8px 12px; border-bottom:1px solid #eee; font-size:13px; }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <h2>🛒 New Order Received</h2>
+  <div class="meta">
+    <strong>Order Code:</strong> {{ tran_id }}<br>
+    <strong>Customer:</strong> {{ full_name }}<br>
+    <strong>Phone:</strong> {{ phone }}<br>
+    <strong>Address:</strong> {{ address }}, {{ city }}<br>
+    <strong>Payment:</strong> {{ payment_method }}<br>
+    <strong>Total:</strong> ${{ total }}
+  </div>
+  <table>
+    <thead><tr><th>Product</th><th>Size</th><th>Color</th><th>Qty</th><th>Subtotal</th></tr></thead>
+    <tbody>
+      {% for item in items %}
+      <tr>
+        <td>{{ item.product }}</td>
+        <td>{{ item.size|default:"-" }}</td>
+        <td>{{ item.color|default:"-" }}</td>
+        <td>{{ item.quantity }}</td>
+        <td>${{ item.subtotal }}</td>
+      </tr>
+      {% endfor %}
+    </tbody>
+  </table>
+</div>
+</body>
+</html>

@@ -1,0 +1,20 @@
+MANVERSE — Order Confirmed
+==========================
+Hi {{ full_name }}, your order is confirmed!
+
+Order Code: {{ tran_id }}
+
+ITEMS
+-----
+{% for item in items %}{{ item.product }} | Size: {{ item.size }} | Color: {{ item.color }} | Qty: {{ item.quantity }} | ${{ item.subtotal }}
+{% endfor %}
+Total: ${{ total }}
+
+DELIVERY
+--------
+{{ address }}, {{ city }}
+Phone: {{ phone }}
+Payment: {{ payment_method }}
+
+Thank you for shopping at Manverse.
+{{ site_url }}
