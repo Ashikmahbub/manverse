@@ -56,11 +56,13 @@ class InitiatePaymentView(APIView):
             "cus_email":       request.user.email or "customer@manverse.com",
             "cus_add1":        data["address"],
             "cus_city":        data["city"],
+            "cus_postcode":    data.get("postcode", "1000"),
             "cus_country":     "Bangladesh",
             "cus_phone":       data["phone"],
             "ship_name":       data["full_name"],
             "ship_add1":       data["address"],
             "ship_city":       data["city"],
+            "ship_postcode":   data.get("postcode", "1000"),
             "ship_country":    "Bangladesh",
             "shipping_method": "Courier",
             "product_name":    "Manverse Order",
@@ -187,6 +189,8 @@ class OrderStatusView(APIView):
             })
         except Order.DoesNotExist:
             return Response({"error": "Not found"}, status=404)
+
+
 class OrderHistoryView(APIView):
     permission_classes = [IsAuthenticated]
 
