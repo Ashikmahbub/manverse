@@ -129,7 +129,7 @@ function StripeForm({ form, items, total }: any) {
 
 // ── MAIN CHECKOUT ──────────────────────────────────────────────
 export default function CheckoutPage() {
-  const { items, clearCart } = useCart();
+ const { cart, clearCart } = useCart();
   const router = useRouter();
   const [paymentMethod, setPaymentMethod] = useState<"sslcommerz"|"stripe">("sslcommerz");
   const [loading, setLoading] = useState(false);
