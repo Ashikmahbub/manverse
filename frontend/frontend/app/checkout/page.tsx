@@ -11,7 +11,6 @@ import {
   useElements,
 } from "@stripe/react-stripe-js";
 
-// Load Stripe outside component
 const stripePromise = loadStripe(
   process.env.NEXT_PUBLIC_STRIPE_KEY || ""
 );
@@ -31,7 +30,6 @@ function StripeForm({ form, items, total }: any) {
 
     const token = localStorage.getItem("token");
 
-    // Step 1: Create payment intent on backend
     const res = await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/orders/stripe/create-payment/`,
       {
@@ -61,7 +59,6 @@ function StripeForm({ form, items, total }: any) {
       return;
     }
 
-    // Step 2: Confirm payment with Stripe
     const { error: stripeError, paymentIntent } =
       await stripe.confirmCardPayment(data.client_secret, {
         payment_method: {
@@ -76,7 +73,6 @@ function StripeForm({ form, items, total }: any) {
       return;
     }
 
-    // Step 3: Confirm on backend
     await fetch(
       `${process.env.NEXT_PUBLIC_API_URL}/api/orders/stripe/confirm/`,
       {
@@ -109,9 +105,7 @@ function StripeForm({ form, items, total }: any) {
           },
         }}/>
       </div>
-      {error && (
-        <p className="text-red-400 text-sm mb-3">{error}</p>
-      )}
+      {error && <p className="text-red-400 text-sm mb-3">{error}</p>}
       <button
         onClick={handleStripePayment}
         disabled={loading || !stripe}
@@ -129,7 +123,7 @@ function StripeForm({ form, items, total }: any) {
 
 // ── MAIN CHECKOUT ──────────────────────────────────────────────
 export default function CheckoutPage() {
- const { cart, clearCart } = useCart();
+  const { cart, clearCart } = useCart();
   const router = useRouter();
   const [paymentMethod, setPaymentMethod] = useState<"sslcommerz"|"stripe">("sslcommerz");
   const [loading, setLoading] = useState(false);
@@ -139,8 +133,8 @@ export default function CheckoutPage() {
     full_name: "", phone: "", address: "", city: "",
   });
 
-  const total     = items.reduce((sum, i) => sum + parseFloat(i.price) * i.quantity, 0);
-  const totalInUSD = (total / 110).toFixed(2); // BDT to USD approx
+  const total      = cart.reduce((sum, i) => sum + parseFloat(i.price) * i.quantity, 0);
+  const totalInUSD = (total / 110).toFixed(2);
 
   const handleChange = (e: any) =>
     setForm(prev => ({ ...prev, [e.target.name]: e.target.value }));
@@ -158,7 +152,7 @@ export default function CheckoutPage() {
         },
         body: JSON.stringify({
           ...form,
-          items: items.map(i => ({
+          items: cart.map(i => ({
             product:  i.name,
             size:     i.size  || "",
             color:    i.color || "",
@@ -239,7 +233,7 @@ export default function CheckoutPage() {
             {/* Stripe Form */}
             {paymentMethod === "stripe" && (
               <Elements stripe={stripePromise}>
-                <StripeForm form={form} items={items} total={totalInUSD}/>
+                <StripeForm form={form} items={cart} total={totalInUSD}/>
               </Elements>
             )}
 
@@ -251,7 +245,7 @@ export default function CheckoutPage() {
           {/* ORDER SUMMARY */}
           <div className="bg-white/5 border border-white/10 rounded-xl p-6">
             <h2 className="text-white font-semibold mb-4">Order Summary</h2>
-            {items.map((item, i) => (
+            {cart.map((item, i) => (
               <div key={i} className="flex justify-between py-2 border-b border-white/6">
                 <div>
                   <p className="text-white text-sm">{item.name}</p>
@@ -275,7 +269,6 @@ export default function CheckoutPage() {
               )}
             </div>
 
-            {/* Trust badges */}
             <div className="mt-4 flex flex-wrap gap-3">
               <span className="text-xs text-gray-500 font-mono">🔒 SSL Secured</span>
               <span className="text-xs text-gray-500 font-mono">💳 bKash · Nagad · Cards</span>
