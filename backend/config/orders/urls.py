@@ -8,6 +8,7 @@ from .views import (
     PaymentIPNView,
     OrderStatusView,
     OrderHistoryView,
+    OrderDetailView,
 )
 from .stripe_views import (
     StripeCreatePaymentView,
