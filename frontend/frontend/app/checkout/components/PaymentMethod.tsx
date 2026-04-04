@@ -17,6 +17,7 @@ interface Props {
   form: any;
   items: any[];
   totalInUSD: string;
+  clearCart: () => void;
 }
 
 const methods = [
@@ -130,7 +131,7 @@ export default function PaymentMethod({
 
       {paymentMethod === "stripe" && (
         <Elements stripe={stripePromise}>
-          <StripeForm form={form} items={items} total={totalInUSD}/>
+           <StripeForm form={form} items={items} total={totalInUSD} clearCart={clearCart}/>
         </Elements>
       )}
 

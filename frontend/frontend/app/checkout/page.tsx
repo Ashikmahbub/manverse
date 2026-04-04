@@ -105,6 +105,7 @@ export default function CheckoutPage() {
               form={form}
               items={cart}
               totalInUSD={totalInUSD}
+              clearCart={clearCart}
             />
 
             {error && (

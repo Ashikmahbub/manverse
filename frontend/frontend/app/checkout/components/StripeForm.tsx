@@ -13,6 +13,7 @@ interface Props {
   form: any;
   items: any[];
   total: string;
+  clearCart: () => void;
 }
 
 const elementStyle = {
@@ -27,7 +28,7 @@ const elementStyle = {
   },
 };
 
-export default function StripeForm({ form, items, total }: Props) {
+export default function StripeForm({ form, items, total ,clearCart}: Props) {
   const stripe   = useStripe();
   const elements = useElements();
   const router   = useRouter();
@@ -117,6 +118,7 @@ export default function StripeForm({ form, items, total }: Props) {
     );
 
     localStorage.setItem("last_tran_id", data.tran_id);
+    clearCart();
     router.push(`/order-success?tran_id=${data.tran_id}`);
   };
 
