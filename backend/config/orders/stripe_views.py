@@ -7,7 +7,8 @@ from rest_framework.views import APIView
 from rest_framework.permissions import IsAuthenticated, AllowAny
 from rest_framework.response import Response
 from .models import Order, OrderItem
-from orders.tasks import send_order_emails
+from .tasks import send_order_emails
+
 
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
@@ -37,18 +38,19 @@ class StripeCreatePaymentView(APIView):
         tran_id = f"MV-STRIPE-{uuid.uuid4().hex[:10].upper()}"
 
         # Create pending order
-        order = Order.objects.create(
-            user         = request.user,
-            full_name    = data.get("full_name", ""),
-            phone        = data.get("phone", ""),
-            address      = data.get("address", ""),
-            city         = data.get("city", ""),
-            total_amount = total_usd,
-            tran_id      = tran_id,
-            status       = "PENDING",
-            payment_method = "stripe",
+         order = Order.objects.create(
+            user            = request.user,
+            full_name       = data.get("full_name", ""),
+            phone           = data.get("phone", ""),
+            address         = data.get("address", ""),
+            city            = data.get("city", ""),
+            postcode        = data.get("postcode", ""),      # ← add
+            total_amount    = total_usd,
+            delivery_charge = 0,                             # ← add (stripe = USD, no BD delivery)
+            tran_id         = tran_id,
+            status          = "PENDING",
+            payment_method  = "stripe",
         )
-
         for item in items:
             OrderItem.objects.create(
                 order    = order,
