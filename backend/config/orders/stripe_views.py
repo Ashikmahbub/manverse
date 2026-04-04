@@ -9,11 +9,15 @@ from rest_framework.response import Response
 from .models import Order, OrderItem
 from .tasks import send_order_emails
 
-
 stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 class StripeCreatePaymentView(APIView):
+    """
+    POST /api/orders/stripe/create-payment/
+    Creates a Stripe Payment Intent
+    Returns client_secret to frontend
+    """
     permission_classes = [IsAuthenticated]
 
     def post(self, request):
@@ -77,77 +81,6 @@ class StripeCreatePaymentView(APIView):
             "amount":          total_usd,
             "publishable_key": settings.STRIPE_PUBLISHABLE_KEY,
         })
-    """
-    POST /api/orders/stripe/create-payment/
-    Creates a Stripe Payment Intent
-    Returns client_secret to frontend
-    """
-    permission_classes = [IsAuthenticated]
-
-    def post(self, request):
-        data  = request.data
-        items = data.get("items", [])
-
-        if not items:
-            return Response({"error": "Cart is empty"}, status=400)
-
-        total_usd = float(data.get("total_usd", 0))
-        if total_usd <= 0:
-            return Response({"error": "Invalid amount"}, status=400)
-
-        # Amount in cents for Stripe
-        amount_cents = int(total_usd * 100)
-
-        tran_id = f"MV-STRIPE-{uuid.uuid4().hex[:10].upper()}"
-
-        # Create pending order
-         order = Order.objects.create(
-            user            = request.user,
-            full_name       = data.get("full_name", ""),
-            phone           = data.get("phone", ""),
-            address         = data.get("address", ""),
-            city            = data.get("city", ""),
-            postcode        = data.get("postcode", ""),      # ← add
-            total_amount    = total_usd,
-            delivery_charge = 0,                             # ← add (stripe = USD, no BD delivery)
-            tran_id         = tran_id,
-            status          = "PENDING",
-            payment_method  = "stripe",
-        )
-        for item in items:
-            OrderItem.objects.create(
-                order    = order,
-                product  = item.get("product", ""),
-                size     = item.get("size", ""),
-                color    = item.get("color", ""),
-                price    = float(item["price"]),
-                quantity = int(item["quantity"]),
-            )
-
-        # Create Stripe Payment Intent
-        try:
-            intent = stripe.PaymentIntent.create(
-                amount      = amount_cents,
-                currency    = "usd",
-                metadata    = {
-                    "order_id": order.id,
-                    "tran_id":  tran_id,
-                    "user_id":  request.user.id,
-                },
-                description = f"Manverse Order #{order.id}",
-            )
-        except stripe.error.StripeError as e:
-            order.delete()
-            return Response({"error": str(e)}, status=502)
-
-        return Response({
-            "client_secret":   intent.client_secret,
-            "payment_intent":  intent.id,
-            "order_id":        order.id,
-            "tran_id":         tran_id,
-            "amount":          total_usd,
-            "publishable_key": settings.STRIPE_PUBLISHABLE_KEY,
-        })
 
 
 class StripeConfirmPaymentView(APIView):
@@ -164,7 +97,6 @@ class StripeConfirmPaymentView(APIView):
         if not payment_intent_id or not tran_id:
             return Response({"error": "Missing fields"}, status=400)
 
-        # Verify with Stripe
         try:
             intent = stripe.PaymentIntent.retrieve(payment_intent_id)
         except stripe.error.StripeError as e:
@@ -176,7 +108,6 @@ class StripeConfirmPaymentView(APIView):
                 "status": intent.status
             }, status=400)
 
-        # Mark order as paid
         try:
             order = Order.objects.get(tran_id=tran_id, user=request.user)
             if order.status != "PAID":
@@ -199,7 +130,7 @@ class StripeConfirmPaymentView(APIView):
 class StripeWebhookView(APIView):
     """
     POST /api/orders/stripe/webhook/
-    Stripe calls this server-to-server (most reliable)
+    Stripe calls this server-to-server
     """
     permission_classes = [AllowAny]
 
@@ -215,7 +146,6 @@ class StripeWebhookView(APIView):
         except (ValueError, stripe.error.SignatureVerificationError):
             return Response({"error": "Invalid signature"}, status=400)
 
-        # Handle payment success
         if event["type"] == "payment_intent.succeeded":
             intent   = event["data"]["object"]
             order_id = intent["metadata"].get("order_id")
@@ -231,7 +161,6 @@ class StripeWebhookView(APIView):
             except Order.DoesNotExist:
                 pass
 
-        # Handle payment failure
         elif event["type"] == "payment_intent.payment_failed":
             intent   = event["data"]["object"]
             order_id = intent["metadata"].get("order_id")
