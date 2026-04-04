@@ -8,16 +8,6 @@ export default function CartPage() {
 
   return (
     <div className="min-h-screen bg-[#faf7f2]">
-      {/* NAVBAR */}
-      <nav className="bg-white/80 backdrop-blur-md shadow-sm sticky top-0 z-50 border-b border-gray-100">
-        <div className="max-w-[1280px] mx-auto px-6 py-4 flex justify-between items-center">
-          <Link href="/" className="text-2xl font-bold tracking-widest text-gray-900">
-            MAN<span className="text-amber-600">VERSE</span>
-          </Link>
-          <Link href="/" className="text-sm text-gray-500 hover:text-amber-600 transition">← Continue Shopping</Link>
-        </div>
-      </nav>
-
       <div className="max-w-[1280px] mx-auto px-6 py-12">
         <h1 className="text-3xl font-semibold mb-10">Your Cart ({totalItems} items)</h1>
 
