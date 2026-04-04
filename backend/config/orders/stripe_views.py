@@ -14,6 +14,69 @@ stripe.api_key = settings.STRIPE_SECRET_KEY
 
 
 class StripeCreatePaymentView(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def post(self, request):
+        data  = request.data
+        items = data.get("items", [])
+
+        if not items:
+            return Response({"error": "Cart is empty"}, status=400)
+
+        total_usd = float(data.get("total_usd", 0))
+        if total_usd <= 0:
+            return Response({"error": "Invalid amount"}, status=400)
+
+        amount_cents = int(total_usd * 100)
+        tran_id      = f"MV-STRIPE-{uuid.uuid4().hex[:10].upper()}"
+
+        order = Order.objects.create(
+            user            = request.user,
+            full_name       = data.get("full_name", ""),
+            phone           = data.get("phone", ""),
+            address         = data.get("address", ""),
+            city            = data.get("city", ""),
+            postcode        = data.get("postcode", ""),
+            total_amount    = total_usd,
+            delivery_charge = 0,
+            tran_id         = tran_id,
+            status          = "PENDING",
+            payment_method  = "stripe",
+        )
+
+        for item in items:
+            OrderItem.objects.create(
+                order    = order,
+                product  = item.get("product", ""),
+                size     = item.get("size", ""),
+                color    = item.get("color", ""),
+                price    = float(item["price"]),
+                quantity = int(item["quantity"]),
+            )
+
+        try:
+            intent = stripe.PaymentIntent.create(
+                amount      = amount_cents,
+                currency    = "usd",
+                metadata    = {
+                    "order_id": order.id,
+                    "tran_id":  tran_id,
+                    "user_id":  request.user.id,
+                },
+                description = f"Manverse Order #{order.id}",
+            )
+        except stripe.error.StripeError as e:
+            order.delete()
+            return Response({"error": str(e)}, status=502)
+
+        return Response({
+            "client_secret":   intent.client_secret,
+            "payment_intent":  intent.id,
+            "order_id":        order.id,
+            "tran_id":         tran_id,
+            "amount":          total_usd,
+            "publishable_key": settings.STRIPE_PUBLISHABLE_KEY,
+        })
     """
     POST /api/orders/stripe/create-payment/
     Creates a Stripe Payment Intent
