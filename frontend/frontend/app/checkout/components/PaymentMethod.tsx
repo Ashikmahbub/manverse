@@ -73,8 +73,8 @@ const methods = [
 export default function PaymentMethod({
   paymentMethod, setPaymentMethod,
   onSSLCommerz, onCOD, loading, cartEmpty,
-  form, items, totalInUSD,
-}: Props) {
+  form, items, totalInUSD, clearCart,
+}: Props) { {
   return (
     <div>
       <h2 className="text-white font-semibold text-lg mt-6 mb-4">Payment Method</h2>
