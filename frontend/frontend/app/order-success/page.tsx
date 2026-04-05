@@ -20,10 +20,17 @@ interface Order {
   address: string;
   city: string;
   total_amount: string;
+  delivery_charge: string;
   payment_method: string;
   created_at: string;
   items: OrderItem[];
 }
+
+const paymentLabels: Record<string, string> = {
+  cod:        "Cash on Delivery 💵",
+  sslcommerz: "SSLCommerz 🇧🇩",
+  stripe:     "Stripe 💳",
+};
 
 function OrderSuccessContent() {
   const searchParams = useSearchParams();
@@ -70,6 +77,10 @@ function OrderSuccessContent() {
 
   if (!order) return null;
 
+  const deliveryCharge = parseFloat(order.delivery_charge || "0");
+  const totalAmount    = parseFloat(order.total_amount || "0");
+  const subtotal       = totalAmount - deliveryCharge;
+
   return (
     <div className="min-h-screen bg-[#faf7f2] py-12 px-4">
       <div className="max-w-lg mx-auto">
@@ -109,13 +120,25 @@ function OrderSuccessContent() {
                       .filter(Boolean).join(" · ")}
                   </p>
                 </div>
-                <p className="text-sm font-semibold text-gray-900">${item.subtotal}</p>
+                <p className="text-sm font-semibold text-gray-900">৳{item.subtotal}</p>
               </div>
             ))}
           </div>
-          <div className="mt-3 pt-3 border-t border-gray-200 flex justify-between">
-            <span className="font-bold text-gray-900 text-sm">Total</span>
-            <span className="font-bold text-amber-600">${order.total_amount}</span>
+
+          {/* Price breakdown */}
+          <div className="mt-3 pt-3 border-t border-gray-200 space-y-1">
+            <div className="flex justify-between text-sm text-gray-500">
+              <span>Subtotal</span>
+              <span>৳{subtotal.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between text-sm text-gray-500">
+              <span>Delivery Charge</span>
+              <span>৳{deliveryCharge.toFixed(2)}</span>
+            </div>
+            <div className="flex justify-between font-bold text-gray-900 text-sm pt-2 border-t border-gray-100">
+              <span>Total</span>
+              <span className="text-amber-600">৳{totalAmount.toFixed(2)}</span>
+            </div>
           </div>
         </div>
 
@@ -128,7 +151,7 @@ function OrderSuccessContent() {
             <p><span className="text-gray-400 w-24 inline-block">Name</span>{order.full_name}</p>
             <p><span className="text-gray-400 w-24 inline-block">Phone</span>{order.phone}</p>
             <p><span className="text-gray-400 w-24 inline-block">Address</span>{order.address}, {order.city}</p>
-            <p><span className="text-gray-400 w-24 inline-block">Payment</span>{order.payment_method}</p>
+            <p><span className="text-gray-400 w-24 inline-block">Payment</span>{paymentLabels[order.payment_method] || order.payment_method}</p>
             <p><span className="text-gray-400 w-24 inline-block">Date</span>{order.created_at}</p>
           </div>
         </div>
