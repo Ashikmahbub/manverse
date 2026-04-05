@@ -82,7 +82,7 @@ export default function CheckoutPage() {
     const data = await res.json();
     if (!res.ok) { setError(data.error || "Order failed."); setLoading(false); return; }
     clearCart();
-    router.push(`/order-success?code=${data.order_code}`);
+    router.push(`/order-success?tran_id=${data.order_code}`);
   };
 
   return (
