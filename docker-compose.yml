@@ -1,6 +1,6 @@
 services:
   db:
-    image: postgres:16
+    image: ankane/pgvector:latest
     container_name: manverse_db
     restart: always
     environment:
@@ -23,7 +23,7 @@ services:
       sh -c "cd /app/config &&
              python manage.py makemigrations --no-input &&
              python manage.py migrate --no-input &&
-             python manage.py collectstatic --no-input --clear"
+             python manage.py collectstatic --no-input --clear && python manage.py ingest_knowledge"
     depends_on:
       - db
     environment:
