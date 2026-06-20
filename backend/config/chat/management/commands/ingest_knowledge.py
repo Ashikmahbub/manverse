@@ -1,9 +1,9 @@
 from django.core.management.base import BaseCommand
-from sentence_transformers import SentenceTransformer
+from fastembed import TextEmbedding
 from chat.models import KnowledgeChunk
 from products.models import Product
 
-embedder = SentenceTransformer("all-MiniLM-L6-v2")
+embedder = TextEmbedding("BAAI/bge-small-en-v1.5")
 
 class Command(BaseCommand):
     help = "Embed products into pgvector for RAG"
@@ -26,7 +26,7 @@ class Command(BaseCommand):
                 f"{p.description}. "
                 f"Price: ৳{p.price}."
             )
-            embedding = embedder.encode(text).tolist()
+            embedding = list(embedder.embed([text]))[0].tolist()
             chunks.append(KnowledgeChunk(
                 content=text,
                 source="product",

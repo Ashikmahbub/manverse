@@ -13,5 +13,5 @@ requests
 stripe
 weasyprint==62.3
 pgvector
-sentence-transformers
+fastembed
 groq
