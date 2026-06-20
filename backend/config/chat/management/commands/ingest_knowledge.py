@@ -19,12 +19,11 @@ class Command(BaseCommand):
 
         chunks = []
         for p in products:
-            # Rich text so embeddings carry category + variant context
             text = (
                 f"{p.name}. "
                 f"Category: {p.category.name} ({p.category.gender}). "
                 f"{p.description}. "
-                f"Price: ৳{p.price}."
+                f"Price: {p.price}."
             )
             embedding = list(embedder.embed([text]))[0].tolist()
             chunks.append(KnowledgeChunk(
@@ -36,5 +35,5 @@ class Command(BaseCommand):
 
         KnowledgeChunk.objects.bulk_create(chunks, batch_size=100)
         self.stdout.write(self.style.SUCCESS(
-            f"✓ Ingested {len(chunks)} products into pgvector."
+            f"Ingested {len(chunks)} products into pgvector."
         ))

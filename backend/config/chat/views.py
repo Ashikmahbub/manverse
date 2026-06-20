@@ -1,10 +1,10 @@
 from django.http import JsonResponse
 from django.views.decorators.http import require_GET
-from sentence_transformers import SentenceTransformer
+from fastembed import TextEmbedding
 from pgvector.django import CosineDistance
 from .models import KnowledgeChunk
 
-embedder = SentenceTransformer("all-MiniLM-L6-v2")
+embedder = TextEmbedding("BAAI/bge-small-en-v1.5")
 
 @require_GET
 def rag_search(request):
@@ -12,7 +12,7 @@ def rag_search(request):
     if not query:
         return JsonResponse({"chunks": []})
 
-    query_vec = embedder.encode(query).tolist()
+    query_vec = list(embedder.embed([query]))[0].tolist()
 
     chunks = (
         KnowledgeChunk.objects
